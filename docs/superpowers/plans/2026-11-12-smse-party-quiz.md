@@ -30,24 +30,24 @@
 
 - `index.html`：语义化页面骨架、导航与应用挂载点。
 - `styles.css`：品牌视觉、状态样式、响应式布局和焦点样式。
-- `src/questions.js`：示例题库，导出 `questionBank`。
+- `src/questions.js`：示例题库，导出 `questionBank`；每题带来源名称和 URL。
 - `src/quiz-engine.js`：纯答题规则；导出 `normalizeAnswer(question, answer)`、`isCorrect(question, answer)`、`selectRandomQuestions(questions, count, random = Math.random)`。
 - `src/progress-store.js`：本地记录读写；导出 `createProgressStore(storage, key = 'smse-party-quiz-history')`，其 `list()`、`add(record)`、`clear()` 均处理存储异常，`add` 保留最近 20 条。
 - `src/app.js`：页面状态与渲染，连接题库、答题规则和记录存储。
 - `tests/quiz-engine.test.mjs`：题型判分及随机抽题测试。
 - `tests/progress-store.test.mjs`：本地记录上限、损坏数据及存储异常测试。
 
-## 任务 1：题库格式与答题规则
+## Task 1: 题库格式与答题规则
 
 **文件：** 新建 `src/questions.js`、`src/quiz-engine.js`、`tests/quiz-engine.test.mjs`。
 
-**接口：** 每题字段为 `{ id, topic, type, stem, options, answer, explanation }`。`type` 为 `single`、`multiple` 或 `judge`；选项为 `{ id, text }` 数组；答案分别为选项 ID、选项 ID 数组或布尔值。`normalizeAnswer` 将多选答案规范化为排序后的 ID 数组；`isCorrect` 返回布尔值；`selectRandomQuestions` 返回不重复抽取的题目。
+**接口：** 每题字段为 `{ id, topic, type, stem, options, answer, explanation, source: { title, url } }`。`type` 为 `single`、`multiple` 或 `judge`；选项为 `{ id, text }` 数组；答案分别为选项 ID、选项 ID 数组或布尔值。`normalizeAnswer` 将多选答案规范化为排序后的 ID 数组；`isCorrect` 返回布尔值；`selectRandomQuestions` 返回不重复抽取的题目。
 
 - [ ] 编写并运行测试：单选/判断正确答案判对、错误答案判错；多选完整匹配判对、漏选/多选判错且顺序无关；随机抽取不重复并受注入随机数控制。
 - [ ] 实现题库格式与纯规则函数；加入覆盖至少两个专题、三种题型的简短示例题，并标注为示例数据。
 - [ ] 运行 `node --test tests/quiz-engine.test.mjs`，所有测试通过。
 
-## 任务 2：浏览器本地答题记录
+## Task 2: 浏览器本地答题记录
 
 **文件：** 新建 `src/progress-store.js`、`tests/progress-store.test.mjs`。
 
@@ -57,7 +57,7 @@
 - [ ] 实现存储适配器，页面调用时注入 `window.localStorage`。
 - [ ] 运行 `node --test tests/progress-store.test.mjs`，所有测试通过。
 
-## 任务 3：首页与视觉框架
+## Task 3: 首页与视觉框架
 
 **文件：** 新建 `index.html`、`styles.css`、`assets/`；将 `work/reference-assets/` 中已核验的学院横向标识及 `outputs/smse-material-microstructure-banner-2.6.png` 整理为网站资源。
 
@@ -65,7 +65,7 @@
 - [ ] 实现微软雅黑优先的字体栈、清晰层级、选中/悬停/焦点状态，以及窄屏布局；沿用工作区已有图片资源，不增加生成图片步骤。
 - [ ] 启动本地静态服务器，在桌面宽屏和手机宽度检查布局、资源加载、溢出和控制台错误。
 
-## 任务 4：专题练习与错题重做
+## Task 4: 专题练习与错题重做
 
 **文件：** 新建 `src/app.js`，修改 `index.html`、`styles.css`。
 
@@ -73,7 +73,7 @@
 - [ ] 汇总本轮错题，提供错题重做；重做时按同一题型规则即时判分。
 - [ ] 完成专题时保存一条记录，首页记录区立即更新；验证无题专题及题库数据无效时的空状态。
 
-## 任务 5：模拟测试与答题回顾
+## Task 5: 模拟测试与答题回顾
 
 **文件：** 修改 `src/app.js`、`styles.css`。
 
