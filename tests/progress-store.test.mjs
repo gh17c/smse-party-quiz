@@ -52,6 +52,16 @@ test('progress store skips malformed objects inside a valid JSON history array',
   assert.deepEqual(store.list(), [record('valid')]);
 });
 
+test('progress store accepts a 100-point mock test record with its question count', () => {
+  const store = createProgressStore(memoryStorage());
+  const mock = {
+    ...record('mock'), mode: 'test', topic: '全部专题', score: 71,
+    total: 100, questionCount: 55, correctCount: 34,
+  };
+  assert.deepEqual(store.add(mock), [mock]);
+  assert.equal(store.list()[0].score, 71);
+});
+
 test('progress store tolerates storage read and write failures', () => {
   const failingStorage = {
     getItem() { throw new Error('blocked'); },

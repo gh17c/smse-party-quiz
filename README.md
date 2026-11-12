@@ -18,16 +18,24 @@ npm test
 
 ## 替换题库
 
-编辑 `src/questions.js` 中的 `questionBank`。每题包含唯一 `id`、专题 `topic`、题型 `type`、题干 `stem`、选项 `options`、正确答案 `answer`、解析 `explanation` 和来源 `source`。
+维护自编题目时编辑 `src/questions.js`；用户提供的 200 题整理在 `src/imported-question-data.js` 并由 `src/imported-questions.js` 导入。每题包含唯一 `id`、专题 `topic`、题型 `type`、题干 `stem`、选项 `options`、正确答案 `answer`、解析 `explanation` 和来源 `source`。题目需引用权威原文或正式文件，时政题注明对应报告或会议材料，并定期核验时效。
 
 - 单选题：`type: 'single'`，`answer` 填一个选项 ID，例如 `'B'`。
 - 多选题：`type: 'multiple'`，`answer` 填选项 ID 数组，例如 `['A', 'C']`。
 - 判断题：`type: 'judge'`，`answer` 填 `true` 或 `false`，`options` 留空数组。
 - 每题都应填写可核对的 `source.title` 和 `source.url`，解析应与来源条文一致。
 
-正式使用前，请由学院党组织核对所有题目、答案、解析及政策时效。当前题库为联网资料整理的示例内容，不代表学院正式题库。
+综合测试从各题型题池分别随机抽取 25 道单选、10 道多选和 20 道判断题，限时 60 分钟、满分 100 分。时事政治题按题型设置抽题上限，整卷最高 20 分，不足部分由其他题目补足。作答进度保存在当前浏览器标签页，刷新页面可继续；交卷后成绩与解析会保存在本机最近记录中。改动题型配比时，请同步更新 `src/quiz-engine.js` 的组卷规则、计分测试和 `test.html` 的规则说明。
 
-首版专题名称和说明也显示在 `index.html` 中；新增或更名专题时，请同步更新专题入口和模拟测试下拉框。
+正式使用前，请由学院党组织核对所有题目、答案、解析及政策时效。新增的 200 题来自用户提供的 Word 文档；导入时修正了重复题考点标记及已核实的错位解析。正式使用前仍应完成学院党组织审核。
+
+题库数量会随来源核验和内容维护调整。部分题目围绕同一知识点从不同题型考查，综合组卷会尽量避免重复；使用前请核对题目、答案与解析。
+
+## 字体
+
+页面使用本地子集版 Noto Sans SC（正文）和 Noto Serif SC（标题），依据 SIL Open Font License 1.1 发布，可用于本项目。许可文本见 `assets/fonts/OFL.txt`。字体以 WOFF2 格式自托管，不依赖在线字体服务；缺少网页字体时会回退到系统中文字体。
+
+首页、专题练习、综合测试说明和独立答题页分别位于 `index.html`、`practice.html`、`test.html` 和 `exam.html`；新增或更名专题时，请同步更新首页和练习页入口。
 
 ## 发布为静态网站
 

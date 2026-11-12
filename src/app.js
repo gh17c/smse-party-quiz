@@ -1,6 +1,7 @@
 import { questionBank } from './questions.js';
-import { getTopicQuestions, getUsableQuestions, isCorrect, selectRandomQuestions } from './quiz-engine.js';
+import { createMockTestQuestions, getTopicQuestions, getUsableQuestions, isCorrect, selectRandomQuestions, TEST_BLUEPRINT } from './quiz-engine.js';
 import { createProgressStore } from './progress-store.js';
+import { createTestSession, TEST_SESSION_STORAGE_KEY } from './test-session.js';
 
 const practiceContent = document.querySelector('#practice-content');
 const historyList = document.querySelector('#history-list');
@@ -40,6 +41,37 @@ function appendSource(target, question) {
   target.append(source);
 }
 
+function learningPrompt(question) {
+  return {
+    '党章基础': '复习时注意区分党员义务、党员权利和党的组织原则，并以党章条文中的主体与条件为准。',
+    '党员义务与纪律': '纪律类知识要结合行为性质、适用对象和情节判断，不能只凭日常用语推断处分规定。',
+    '发展党员程序': '发展党员各阶段有明确的责任主体和程序节点，注意区分培养考察、政治审查、支部讨论和上级审批。',
+    '时事政治与高质量发展': '时政题要分清会议决定、规划建议、规划纲要和年度政府工作部署，并留意指标对应的时间范围。',
+    '党史与红色知识': '党史题注意分清会议召开时间、历史决议和重要理论成果形成的阶段。',
+    '习近平关于党的建设的重要思想': '结合原文理解全面从严治党、党的组织建设和自我革命等概念之间的联系。',
+    '党的二十大精神': '以大会报告原文为依据，注意区分战略目标、战略布局和中国式现代化的本质要求。',
+  }[question.topic] || '作答时应回到题目所列正式文件核对概念、主体和适用条件。';
+}
+
+function appendLearningNotes(target, question) {
+  const notes = makeElement('div', 'learning-notes');
+  notes.append(
+    makeElement('strong', 'learning-notes-title', '知识解读'),
+    makeElement('p', 'feedback-explanation', question.explanation),
+    makeElement('strong', 'learning-notes-title', '条文依据'),
+    makeElement('p', 'feedback-explanation', question.annotation?.basis || question.source.title),
+    makeElement('strong', 'learning-notes-title', '易错提醒'),
+    makeElement('p', 'feedback-explanation', question.annotation?.pitfall || learningPrompt(question)),
+  );
+  if (question.annotation?.detail) {
+    notes.append(
+      makeElement('strong', 'learning-notes-title', '延伸说明'),
+      makeElement('p', 'feedback-explanation', question.annotation.detail),
+    );
+  }
+  target.append(notes);
+}
+
 function getSelectedAnswer(form, question) {
   const values = new FormData(form).getAll('answer');
   if (question.type === 'judge') return values.length ? values[0] === 'true' : undefined;
@@ -47,36 +79,37 @@ function getSelectedAnswer(form, question) {
   return values[0];
 }
 
-function getTestPool() {
-  const selectedTopic = document.querySelector('#test-topic').value;
-  if (selectedTopic !== 'all') return getTopicQuestions(questionBank, selectedTopic);
-  return getUsableQuestions(questionBank);
-}
-
 function updateTestAvailability() {
-  const available = getTestPool().length;
+  const usable = getUsableQuestions(questionBank);
+  const available = Object.fromEntries(Object.keys(TEST_BLUEPRINT).map((type) => [
+    type,
+    usable.filter((question) => question.type === type).length,
+  ]));
+  const missing = Object.entries(TEST_BLUEPRINT).filter(([type, required]) => available[type] < required);
   const startButton = document.querySelector('#start-test');
   const message = document.querySelector('#test-availability');
-  startButton.disabled = available < 10;
-  message.hidden = available >= 10;
-  message.textContent = `当前专题有 ${available} 道可用题，至少需要 10 道才能开始测试。`;
+  startButton.disabled = missing.length > 0;
+  message.hidden = missing.length === 0;
+  message.textContent = missing.map(([type, required]) => `${questionTypeLabel(type)}需要 ${required} 道，当前 ${available[type]} 道`).join('；');
 }
 
 function saveSession() {
   if (!session || session.saved) return;
-  const correctCount = session.results.filter(Boolean).length;
+  const correctCount = session.correctCount ?? session.results.filter(Boolean).length;
+  const isTest = session.mode === 'test';
   const record = {
     id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     mode: session.mode,
     topic: session.topic,
-    score: correctCount,
-    total: session.questions.length,
+    score: isTest ? session.results.reduce((sum, points) => sum + points, 0) : correctCount,
+    total: isTest ? 100 : session.questions.length,
+    questionCount: session.questions.length,
     correctCount,
     completedAt: new Date().toISOString(),
   };
   historyRecords = progressStore.add(record);
   session.saved = true;
-  renderHistory();
+  if (historyList) renderHistory();
 }
 
 function renderHistory() {
@@ -91,8 +124,9 @@ function renderHistory() {
     const item = makeElement('li', 'history-row');
     const details = makeElement('div', 'history-details');
     details.append(makeElement('strong', '', record.topic));
-    const mode = record.mode === 'test' ? '模拟测试' : record.mode === 'mistakes' ? '错题重做' : '专题练习';
-    details.append(makeElement('span', '', `${mode} · ${new Date(record.completedAt).toLocaleString('zh-CN', { dateStyle: 'short', timeStyle: 'short' })}`));
+    const mode = record.mode === 'test' ? '综合测试' : record.mode === 'mistakes' ? '错题重做' : '专题练习';
+    const questionCount = record.questionCount || record.total;
+    details.append(makeElement('span', '', `${mode} · 答对 ${record.correctCount} / ${questionCount} 题 · ${new Date(record.completedAt).toLocaleString('zh-CN', { dateStyle: 'short', timeStyle: 'short' })}`));
     item.append(details, makeElement('strong', 'history-score', `${record.score} / ${record.total} 分`));
     list.append(item);
   }
@@ -103,7 +137,7 @@ function startPractice(topic, questions = getTopicQuestions(questionBank, topic)
   session = {
     mode,
     topic,
-    questions: [...questions],
+    questions: selectRandomQuestions(questions, questions.length),
     answers: Array(questions.length),
     results: Array(questions.length),
     currentIndex: 0,
@@ -193,7 +227,7 @@ function renderQuestion() {
     feedback.setAttribute('aria-live', 'polite');
     feedback.append(makeElement('strong', 'feedback-status', correct ? '回答正确' : '回答错误'));
     if (!correct) feedback.append(makeElement('p', 'feedback-answer', `正确答案：${answerLabel(question, question.answer)}`));
-    feedback.append(makeElement('p', 'feedback-explanation', question.explanation));
+    appendLearningNotes(feedback, question);
     appendSource(feedback, question);
     panel.append(feedback);
 
@@ -246,139 +280,88 @@ function renderPracticeSummary() {
 }
 
 function startTest() {
-  const select = document.querySelector('#test-topic');
-  const topic = select.value === 'all' ? '全部专题' : select.value;
-  const pool = getTestPool();
-  if (pool.length < 10) return;
+  const questions = createMockTestQuestions(questionBank);
+  if (!questions.length) return;
 
-  session = {
-    mode: 'test',
-    topic,
-    questions: selectRandomQuestions(pool, 10),
-    answers: Array(10),
-    results: Array(10),
-    saved: false,
-  };
-  document.querySelector('#practice-title').textContent = '模拟测试';
-  renderTest();
-  document.querySelector('#practice').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderTest() {
-  const form = makeElement('form', 'mock-test-form');
-  form.dataset.testForm = '';
-  form.append(makeElement('p', 'test-session-note', '模拟测试 · 共 10 题 · 提交前不显示答案与解析'));
-
-  session.questions.forEach((question, index) => {
-    const panel = makeElement('article', 'mock-question');
-    panel.dataset.testQuestion = String(index);
-    const meta = makeElement('div', 'question-meta');
-    meta.append(
-      makeElement('span', 'question-count', `${String(index + 1).padStart(2, '0')} / 10`),
-      makeElement('span', 'question-type', questionTypeLabel(question.type)),
-    );
-    const fieldset = makeElement('fieldset', 'answer-fieldset');
-    fieldset.append(makeElement('legend', 'question-stem', question.stem));
-    const answerChoices = question.type === 'judge'
-      ? [{ id: 'true', text: '正确' }, { id: 'false', text: '错误' }]
-      : question.options;
-    for (const option of answerChoices) {
-      const label = makeElement('label', 'answer-option');
-      const input = makeElement('input');
-      input.id = `mock-${index}-${option.id}`;
-      input.type = question.type === 'multiple' ? 'checkbox' : 'radio';
-      input.name = `answer-${index}`;
-      input.value = option.id;
-      label.append(input, makeElement('span', '', option.text));
-      fieldset.append(label);
-    }
-    panel.append(meta, fieldset);
-    form.append(panel);
-  });
-
-  const submit = makeElement('button', 'button button-red test-submit', '提交测试');
-  submit.type = 'submit';
-  submit.dataset.action = 'submit-test';
-  form.append(submit);
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const formData = new FormData(form);
-    session.results = session.questions.map((question, index) => {
-      const values = formData.getAll(`answer-${index}`);
-      const answer = question.type === 'judge'
-        ? (values.length ? values[0] === 'true' : undefined)
-        : question.type === 'multiple' ? values : values[0];
-      session.answers[index] = answer;
-      return isCorrect(question, answer);
-    });
-    renderTestResults();
-  });
-
-  practiceContent.replaceChildren(form);
-}
-
-function renderTestResults() {
-  saveSession();
-  const correctCount = session.results.filter(Boolean).length;
-  const resultView = makeElement('section', 'test-results');
-  resultView.dataset.testResults = '';
-  const summary = makeElement('header', 'test-summary');
-  summary.dataset.testSummary = '';
-  summary.append(
-    makeElement('p', 'section-kicker', 'MOCK TEST'),
-    makeElement('h3', '', '测试完成'),
-    makeElement('p', 'summary-score', `${correctCount} / ${session.questions.length} 分`),
-    makeElement('p', 'summary-topic', `${session.topic} · 答对 ${correctCount} 题`),
-  );
-  const back = makeElement('button', 'text-button summary-back', '返回首页');
-  back.type = 'button';
-  back.addEventListener('click', returnHome);
-  summary.append(back);
-  resultView.append(summary);
-
-  const list = makeElement('div', 'test-result-list');
-  session.questions.forEach((question, index) => {
-    const correct = session.results[index];
-    const item = makeElement('article', `test-result ${correct ? 'is-correct' : 'is-wrong'}`);
-    item.dataset.testResult = '';
-    item.append(
-      makeElement('p', 'question-count', `${String(index + 1).padStart(2, '0')} · ${correct ? '回答正确' : '回答错误'}`),
-      makeElement('h4', 'result-stem', question.stem),
-    );
-    const chosen = session.answers[index];
-    item.append(makeElement('p', 'feedback-answer', `你的答案：${chosen === undefined || (Array.isArray(chosen) && !chosen.length) ? '未作答' : answerLabel(question, chosen)}`));
-    if (!correct) item.append(makeElement('p', 'feedback-answer', `正确答案：${answerLabel(question, question.answer)}`));
-    item.append(makeElement('p', 'feedback-explanation', question.explanation));
-    appendSource(item, question);
-    list.append(item);
-  });
-  resultView.append(list);
-  practiceContent.replaceChildren(resultView);
+  try {
+    window.sessionStorage.setItem(TEST_SESSION_STORAGE_KEY, JSON.stringify(createTestSession(questions)));
+    window.location.assign('exam.html');
+  } catch {
+    const message = document.querySelector('#test-availability');
+    message.hidden = false;
+    message.textContent = '浏览器未能保存本次答卷，请检查隐私设置后重试。';
+  }
 }
 
 function returnHome() {
-  session = null;
-  document.querySelector('#practice-title').textContent = '专题答题';
-  practiceContent.replaceChildren(makeElement('p', 'empty-state', '选择一个学习专题开始答题。'));
-  document.querySelector('#home').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.location.href = 'index.html';
 }
 
-document.querySelector('.topic-list').addEventListener('click', (event) => {
-  const link = event.target.closest('.topic-row');
-  if (link) {
-    event.preventDefault();
-    startPractice(link.dataset.topic);
-  }
-});
+const page = document.body.dataset.page;
 
-document.querySelector('#back-home').addEventListener('click', returnHome);
-document.querySelector('#clear-history').addEventListener('click', () => {
-  progressStore.clear();
-  historyRecords = [];
+if (page === 'home') {
   renderHistory();
-});
-document.querySelector('#test-topic').addEventListener('change', updateTestAvailability);
-document.querySelector('#start-test').addEventListener('click', startTest);
+  document.querySelector('#clear-history').addEventListener('click', () => {
+    progressStore.clear();
+    historyRecords = [];
+    renderHistory();
+  });
 
-updateTestAvailability();
-renderHistory();
+  const path = document.querySelector('.learning-path');
+  const stages = [...document.querySelectorAll('[data-path-stage]')];
+  if (path && stages.length > 1 && 'IntersectionObserver' in window) {
+    let frame = 0;
+    const updatePathProgress = () => {
+      frame = 0;
+      const center = window.innerHeight / 2;
+      const index = stages.reduce((closest, stage, stageIndex) => {
+        const distance = Math.abs(stage.getBoundingClientRect().top + stage.offsetHeight / 2 - center);
+        return distance < closest.distance ? { index: stageIndex, distance } : closest;
+      }, { index: 0, distance: Infinity }).index;
+      stages.forEach((stage, stageIndex) => {
+        const active = stageIndex === index;
+        stage.classList.toggle('is-current', active);
+        if (active) stage.setAttribute('aria-current', 'step');
+        else stage.removeAttribute('aria-current');
+      });
+      path.style.setProperty('--path-progress', String(index / (stages.length - 1)));
+    };
+    const requestPathProgress = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updatePathProgress);
+    };
+    const observer = new IntersectionObserver(requestPathProgress, { rootMargin: '-15% 0px -15% 0px', threshold: 0 });
+
+    stages.forEach((stage) => observer.observe(stage));
+    window.addEventListener('scroll', requestPathProgress, { passive: true });
+    window.addEventListener('resize', requestPathProgress, { passive: true });
+  }
+}
+
+document.querySelectorAll('.topic-row[data-topic]').forEach((link) => {
+  const count = getTopicQuestions(questionBank, link.dataset.topic).length;
+  const countLabel = link.querySelector('.topic-count');
+  const description = link.querySelector('.topic-body small');
+  if (countLabel) countLabel.textContent = `${count} 题`;
+  if (description && document.body.dataset.page === 'practice') description.textContent = `${count} 道题`;
+});
+
+if (page === 'practice') {
+  document.querySelector('.practice-topics .topic-list').addEventListener('click', (event) => {
+    const link = event.target.closest('.topic-row');
+    if (link) {
+      event.preventDefault();
+      const topic = link.dataset.topic;
+      history.replaceState(null, '', `practice.html?topic=${encodeURIComponent(topic)}`);
+      startPractice(topic);
+    }
+  });
+
+  const topic = new URLSearchParams(window.location.search).get('topic');
+  if (topic && getTopicQuestions(questionBank, topic).length) startPractice(topic);
+}
+
+if (page === 'test') {
+  document.querySelector('#start-test').addEventListener('click', startTest);
+  updateTestAvailability();
+}

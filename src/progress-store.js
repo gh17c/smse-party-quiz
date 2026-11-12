@@ -2,6 +2,7 @@ const HISTORY_LIMIT = 20;
 const HISTORY_MODES = new Set(['practice', 'mistakes', 'test']);
 
 function isValidRecord(record) {
+  const questionCount = record?.questionCount ?? record?.total;
   return record !== null
     && typeof record === 'object'
     && typeof record.id === 'string'
@@ -14,7 +15,10 @@ function isValidRecord(record) {
     && record.score <= record.total
     && Number.isFinite(record.correctCount)
     && record.correctCount >= 0
-    && record.correctCount <= record.total
+    && Number.isFinite(questionCount)
+    && questionCount > 0
+    && record.correctCount <= questionCount
+    && (!('questionCount' in record) || Number.isInteger(record.questionCount))
     && typeof record.completedAt === 'string'
     && Number.isFinite(Date.parse(record.completedAt));
 }

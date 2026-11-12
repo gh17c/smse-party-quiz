@@ -55,6 +55,63 @@ export function isCorrect(question, answer) {
   return question.type === 'single' && typeof answer === 'string' && answer === question.answer;
 }
 
+export function getQuestionPoints(question, answer) {
+  if (question.type === 'single') return answer === question.answer ? 2 : 0;
+  if (question.type === 'judge') return answer === question.answer ? 1 : 0;
+
+  const selected = normalizeAnswer(question, Array.isArray(answer) ? answer : []);
+  const expected = normalizeAnswer(question, question.answer);
+  if (selected.some((id) => !expected.includes(id))) return 0;
+  if (selected.length === expected.length) return 3;
+  return selected.length > 0 ? 1 : 0;
+}
+
+export const TEST_BLUEPRINT = Object.freeze({ single: 25, multiple: 10, judge: 20 });
+export const CURRENT_AFFAIRS_BLUEPRINT = Object.freeze({ single: 5, multiple: 2, judge: 4 });
+export const MAX_CURRENT_AFFAIRS_POINTS = 20;
+
+export function isCurrentAffairsQuestion(question) {
+  return question?.isCurrentAffairs === true
+    || question?.topic === '时事政治与高质量发展';
+}
+
+export function createMockTestQuestions(questions, random = Math.random) {
+  const usable = getUsableQuestions(questions);
+  const groups = Object.fromEntries(Object.keys(TEST_BLUEPRINT).map((type) => [
+    type,
+    usable.filter((question) => question.type === type),
+  ]));
+
+  if (Object.entries(TEST_BLUEPRINT).some(([type, count]) => groups[type].length < count)) return [];
+
+  const paper = [];
+  const usedConcepts = new Set();
+  for (const [type, count] of Object.entries(TEST_BLUEPRINT)) {
+    const pool = selectRandomQuestions(groups[type], groups[type].length, random);
+    const currentAffairs = pool.filter(isCurrentAffairsQuestion);
+    const regular = pool.filter((question) => !isCurrentAffairsQuestion(question));
+    const currentAffairsLimit = Math.min(CURRENT_AFFAIRS_BLUEPRINT[type], count);
+    let selected = 0;
+    let currentAffairsSelected = 0;
+    for (const question of [...currentAffairs, ...regular]) {
+      const conceptId = question.conceptId || question.id;
+      if (usedConcepts.has(conceptId)) continue;
+      if (isCurrentAffairsQuestion(question) && currentAffairsSelected >= currentAffairsLimit) continue;
+      usedConcepts.add(conceptId);
+      paper.push(question);
+      selected += 1;
+      if (isCurrentAffairsQuestion(question)) currentAffairsSelected += 1;
+      if (selected === count) break;
+    }
+    if (selected < count) return [];
+  }
+  return selectRandomQuestions(paper, paper.length, random);
+}
+
+export function getMaximumPoints(question) {
+  return question.type === 'single' ? 2 : question.type === 'multiple' ? 3 : question.type === 'judge' ? 1 : 0;
+}
+
 export function selectRandomQuestions(questions, count, random = Math.random) {
   const pool = [...questions];
   const limit = Math.min(pool.length, Math.max(0, Math.floor(count)));

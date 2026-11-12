@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#9f1d24">
+    <meta name="description" content="材料学院党建知识综合测试答题页面">
+    <title>答题中 · 综合测试</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-page="exam">
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="党建学习平台首页">
+          <img src="assets/seu-smse-lockup.png" alt="东南大学材料科学与工程学院">
+          <span class="brand-divider" aria-hidden="true"></span><span class="brand-title">综合测试</span>
+        </a>
+        <a class="header-note home-link" id="exit-exam" href="test.html">退出测试</a>
+      </div>
+    </header>
+    <main id="main" class="exam-main">
+      <div class="exam-title-row">
+        <div>
+          <h1>党建知识综合测试</h1>
+          <p>共 55 题 · 满分 100 分 · 限时 60 分钟</p>
+        </div>
+      </div>
+      <section class="exam-monitor" aria-label="答题状态">
+        <div class="monitor-time"><span>剩余时间</span><strong id="exam-clock" aria-live="off">60:00</strong></div>
+        <div class="monitor-answered"><span>已答题目</span><strong><span id="answered-count">0</span> / <span id="total-count">55</span></strong></div>
+        <div class="monitor-progress">
+          <div class="progress-label"><span>答题进度</span><span id="progress-label">0%</span></div>
+          <div class="progress-track" id="progress-track" role="progressbar" aria-label="答题进度" aria-valuemin="0" aria-valuemax="55" aria-valuenow="0"><span id="progress-fill"></span></div>
+        </div>
+      </section>
+      <div id="exam-status" class="exam-empty" role="status" hidden>
+        <h2>当前没有进行中的测试</h2>
+        <p>请返回综合测试页开始组卷。</p>
+        <a class="button button-red" href="test.html">返回综合测试</a>
+      </div>
+      <div class="exam-layout" id="exam-content" hidden>
+        <form class="exam-form" id="exam-form" novalidate>
+          <div class="exam-questions" id="exam-questions"></div>
+          <button class="button button-red exam-submit-mobile" type="submit">提交试卷</button>
+        </form>
+        <aside class="answer-sheet" aria-labelledby="answer-sheet-title">
+          <h2 id="answer-sheet-title">答题卡</h2>
+          <p><span class="answer-state-key" aria-hidden="true"></span>已作答</p>
+          <div class="answer-grid" id="answer-grid"></div>
+          <button class="button button-red answer-sheet-submit" type="submit" form="exam-form">提交试卷</button>
+        </aside>
+      </div>
+      <dialog class="submit-dialog" id="submit-dialog" aria-labelledby="submit-dialog-title">
+        <form method="dialog">
+          <h2 id="submit-dialog-title">确认提交试卷</h2>
+          <p id="submit-dialog-copy"></p>
+          <div class="dialog-actions">
+            <button class="button button-quiet" value="cancel">继续答题</button>
+            <button class="button button-red" id="confirm-submit" type="button">确认交卷</button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+    <footer class="site-footer"><div class="footer-inner"><span>东南大学材料科学与工程学院</span><span>答题进度仅保存在当前浏览器标签页</span></div></footer>
+    <script type="module" src="src/exam.js"></script>
+  </body>
+</html>

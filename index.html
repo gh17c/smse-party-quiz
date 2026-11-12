@@ -4,142 +4,202 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#9f1d24">
-    <meta name="description" content="东南大学材料科学与工程学院党建知识学习与答题平台">
-    <title>党建知识学习与答题 · 东南大学材料科学与工程学院</title>
+    <meta name="description" content="东南大学材料科学与工程学院党建知识学习平台">
+    <title>党建学习平台 · 东南大学材料科学与工程学院</title>
     <link rel="icon" href="data:,">
     <link rel="preload" as="image" href="assets/material-microstructure-banner.webp">
+    <link rel="preload" as="font" href="assets/fonts/noto-sans-sc-subset.woff2" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body data-page="home">
     <a class="skip-link" href="#main">跳到主要内容</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#home" aria-label="东南大学材料科学与工程学院党建学习平台首页">
+        <a class="brand" href="index.html" aria-label="党建学习平台首页">
           <img src="assets/seu-smse-lockup.png" alt="东南大学材料科学与工程学院">
           <span class="brand-divider" aria-hidden="true"></span>
           <span class="brand-title">党建学习平台</span>
         </a>
-        <p class="header-note">学思践悟 · 知行合一</p>
       </div>
     </header>
-
     <nav class="main-nav" aria-label="主导航">
       <div class="nav-inner">
-        <a href="#home" aria-current="page">首页</a>
-        <a href="#topics">专题练习</a>
-        <a href="#mock-test">模拟测试</a>
-        <a href="#history">学习记录</a>
+        <a href="index.html" aria-current="page">首页</a>
+        <a href="practice.html">专题练习</a>
+        <a href="test.html">综合测试</a>
       </div>
     </nav>
 
     <main id="main">
-      <section class="hero" id="home" aria-labelledby="hero-title">
+      <section class="hero" aria-labelledby="hero-title">
         <div class="hero-inner">
-          <p class="eyebrow">材料学院 · 本科生党建学习</p>
-          <h1 id="hero-title">党建知识学习与答题</h1>
-          <p class="hero-copy">面向入党积极分子、发展对象、预备党员及党员</p>
+          <h1 id="hero-title">材料学院本科生党建学习</h1>
+          <p class="hero-copy">面向入党积极分子、发展对象、预备党员及党员，提供党务知识学习与阶段自测。</p>
           <div class="hero-actions">
-            <a class="button button-light" href="#topics">开始专题练习 <span aria-hidden="true">→</span></a>
-            <a class="button button-outline" href="#mock-test">进入模拟测试 <span aria-hidden="true">→</span></a>
+            <a class="button button-light" href="practice.html">进入专题练习 <span aria-hidden="true">→</span></a>
+            <a class="button button-outline" href="test.html">进入综合测试 <span aria-hidden="true">→</span></a>
           </div>
         </div>
-        <div class="hero-caption"><span>01</span> 学习 · 思考 · 践行</div>
       </section>
 
-      <section class="site-main" aria-label="学习内容">
-        <div class="overview" aria-label="题库概览">
-          <div class="overview-item"><strong>30</strong><span>示例题目</span></div>
-          <div class="overview-item"><strong>03</strong><span>学习专题</span></div>
-          <div class="overview-item"><strong>03</strong><span>题目类型</span></div>
-          <p class="sample-note">当前为学习示例题库，正式使用前请核对并替换学院题目</p>
-        </div>
-
-        <div class="content-grid">
-          <section class="topics-section" id="topics" aria-labelledby="topics-title">
+      <section class="site-main" aria-label="学习入口与记录">
+        <div class="portal-grid">
+          <section class="portal-section" aria-labelledby="topics-title">
             <div class="section-heading">
               <div>
-                <p class="section-kicker">STUDY BY TOPIC</p>
                 <h2 id="topics-title">专题练习</h2>
               </div>
-              <span class="section-mark" aria-hidden="true">学习专栏</span>
+              <a class="section-link" href="practice.html">全部专题 <span aria-hidden="true">→</span></a>
             </div>
             <div class="topic-list">
-              <a class="topic-row" href="#practice" data-topic="党章基础">
-                <span class="topic-index">01</span>
+              <a class="topic-row" href="practice.html?topic=%E5%85%9A%E7%AB%A0%E5%9F%BA%E7%A1%80" data-topic="党章基础">
                 <span class="topic-body"><strong>党章基础</strong><small>党员条件、权利义务与组织原则</small></span>
-                <span class="topic-count">10 题</span>
-                <span class="topic-arrow" aria-hidden="true">→</span>
+                <span class="topic-count">10 题</span><span class="topic-arrow" aria-hidden="true">→</span>
               </a>
-              <a class="topic-row" href="#practice" data-topic="党员义务与纪律">
-                <span class="topic-index">02</span>
+              <a class="topic-row" href="practice.html?topic=%E5%85%9A%E5%91%98%E4%B9%89%E5%8A%A1%E4%B8%8E%E7%BA%AA%E5%BE%8B" data-topic="党员义务与纪律">
                 <span class="topic-body"><strong>党员义务与纪律</strong><small>纪律要求、党员权利与行为规范</small></span>
-                <span class="topic-count">10 题</span>
-                <span class="topic-arrow" aria-hidden="true">→</span>
+                <span class="topic-count">10 题</span><span class="topic-arrow" aria-hidden="true">→</span>
               </a>
-              <a class="topic-row" href="#practice" data-topic="发展党员程序">
-                <span class="topic-index">03</span>
+              <a class="topic-row" href="practice.html?topic=%E5%8F%91%E5%B1%95%E5%85%9A%E5%91%98%E7%A8%8B%E5%BA%8F" data-topic="发展党员程序">
                 <span class="topic-body"><strong>发展党员程序</strong><small>发展对象培养、接收与预备期</small></span>
-                <span class="topic-count">10 题</span>
-                <span class="topic-arrow" aria-hidden="true">→</span>
+                <span class="topic-count">10 题</span><span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="practice.html?topic=%E6%97%B6%E4%BA%8B%E6%94%BF%E6%B2%BB%E4%B8%8E%E9%AB%98%E8%B4%A8%E9%87%8F%E5%8F%91%E5%B1%95" data-topic="时事政治与高质量发展">
+                <span class="topic-body"><strong>时事政治与高质量发展</strong><small>“十五五”规划与 2026 年政府工作报告</small></span>
+                <span class="topic-count">题目</span><span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="practice.html?topic=%E5%85%9A%E5%8F%B2%E4%B8%8E%E7%BA%A2%E8%89%B2%E7%9F%A5%E8%AF%86" data-topic="党史与红色知识">
+                <span class="topic-body"><strong>党史与红色知识</strong><small>重要会议、历史决议与党史基本知识</small></span>
+                <span class="topic-count">题目</span><span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="practice.html?topic=%E4%B9%A0%E8%BF%91%E5%B9%B3%E5%85%B3%E4%BA%8E%E5%85%9A%E7%9A%84%E5%BB%BA%E8%AE%BE%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%9D%E6%83%B3" data-topic="习近平关于党的建设的重要思想">
+                <span class="topic-body"><strong>习近平关于党的建设的重要思想</strong><small>全面从严治党与党的建设重要论述</small></span>
+                <span class="topic-count">题目</span><span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="practice.html?topic=%E5%85%9A%E7%9A%84%E4%BA%8C%E5%8D%81%E5%A4%A7%E7%B2%BE%E7%A5%9E" data-topic="党的二十大精神">
+                <span class="topic-body"><strong>党的二十大精神</strong><small>中国式现代化与大会报告重点内容</small></span>
+                <span class="topic-count">题目</span><span class="topic-arrow" aria-hidden="true">→</span>
               </a>
             </div>
           </section>
 
-          <aside class="test-section" id="mock-test" aria-labelledby="test-title">
-            <div class="section-heading">
-              <div>
-                <p class="section-kicker">PRACTICE TEST</p>
-                <h2 id="test-title">模拟测试</h2>
+          <aside class="portal-aside">
+            <section class="test-promo" aria-labelledby="test-title">
+              <h2 id="test-title">综合测试</h2>
+              <p>随机抽取 55 题，满分 100 分。限时 60 分钟，交卷后查看成绩与逐题解析。</p>
+              <a class="button button-red" href="test.html">进入综合测试 <span aria-hidden="true">→</span></a>
+            </section>
+            <section class="history-section" id="history" aria-labelledby="history-title">
+              <div class="section-heading">
+                <h2 id="history-title">最近学习</h2>
+                <button class="text-button" type="button" id="clear-history">清除记录</button>
               </div>
-              <span class="test-seal" aria-hidden="true">测</span>
-            </div>
-            <p class="test-description">随机抽取 10 道题，提交后查看成绩与逐题解析。</p>
-            <label class="field-label" for="test-topic">选择测试专题</label>
-            <select id="test-topic" name="topic">
-              <option value="all">全部专题</option>
-              <option value="党章基础">党章基础</option>
-              <option value="党员义务与纪律">党员义务与纪律</option>
-              <option value="发展党员程序">发展党员程序</option>
-            </select>
-            <button class="button button-red" type="button" id="start-test">开始测试 <span aria-hidden="true">→</span></button>
-            <p class="test-availability" id="test-availability" role="status" hidden></p>
-            <p class="test-meta">不限时 · 满分 10 分 · 可查看答案解析</p>
+              <div id="history-list" aria-live="polite">
+                <p class="empty-state">完成答题后，这里会显示本机最近 20 次学习记录。</p>
+              </div>
+            </section>
           </aside>
         </div>
-
-        <section class="learning-section" id="practice" aria-labelledby="practice-title">
+        <section class="reference-section" aria-labelledby="reference-title">
           <div class="section-heading">
-            <div>
-              <p class="section-kicker">YOUR LEARNING</p>
-              <h2 id="practice-title">专题答题</h2>
-            </div>
-            <button class="text-button" type="button" id="back-home">返回首页</button>
+            <h2 id="reference-title">党务知识速查</h2>
           </div>
-          <div class="practice-mount" id="practice-content" aria-live="polite">
-            <p class="empty-state">选择一个学习专题开始答题。</p>
+          <div class="reference-list">
+            <a class="reference-item" href="https://www.12371.cn/2022/10/27/ARTI1666845926836204.shtml" target="_blank" rel="noreferrer">
+              <span><strong>中国共产党章程</strong><span>党员条件、权利义务、组织原则与党的纪律</span></span>
+              <span class="reference-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="reference-item" href="https://www.12371.cn/2023/12/27/ARTI1703689211048182.shtml" target="_blank" rel="noreferrer">
+              <span><strong>中国共产党纪律处分条例</strong><span>纪律处分种类、适用原则与行为规范</span></span>
+              <span class="reference-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="reference-item" href="https://www.12371.cn/2026/05/18/ARTI1779102179030620.shtml" target="_blank" rel="noreferrer">
+              <span><strong>中国共产党发展党员工作细则</strong><span>积极分子培养、发展对象审查与预备党员转正</span></span>
+              <span class="reference-arrow" aria-hidden="true">↗</span>
+            </a>
           </div>
         </section>
+      </section>
 
-        <section class="history-section" id="history" aria-labelledby="history-title">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">RECENT ACTIVITY</p>
-              <h2 id="history-title">最近学习</h2>
+      <section class="current-affairs" aria-labelledby="current-affairs-title">
+        <div class="current-affairs-inner">
+          <div class="current-affairs-copy">
+            <h2 id="current-affairs-title">2026年政府工作报告</h2>
+            <p class="current-affairs-lead">今年是“十五五”开局之年。报告提出推动高质量发展，因地制宜发展新质生产力，持续扩大内需、优化供给，并更好统筹发展和安全。</p>
+            <dl class="policy-targets" aria-label="2026年经济社会发展主要预期目标">
+              <div><dt>经济增长</dt><dd>4.5%—5%</dd></div>
+              <div><dt>城镇新增就业</dt><dd>1200万人以上</dd></div>
+              <div><dt>粮食产量</dt><dd>1.4万亿斤左右</dd></div>
+              <div><dt>单位国内生产总值二氧化碳排放</dt><dd>降低约 3.8%</dd></div>
+            </dl>
+            <div class="current-affairs-links">
+              <a href="https://www.gov.cn/zhengce/jiedu/tujie/202603/content_7060803.htm" target="_blank" rel="noreferrer">查看报告图表及解读 <span aria-hidden="true">↗</span></a>
+              <a href="practice.html?topic=%E6%97%B6%E4%BA%8B%E6%94%BF%E6%B2%BB%E4%B8%8E%E9%AB%98%E8%B4%A8%E9%87%8F%E5%8F%91%E5%B1%95">练习时政专题 <span aria-hidden="true">→</span></a>
             </div>
-            <button class="text-button" type="button" id="clear-history">清除记录</button>
           </div>
-          <div id="history-list" aria-live="polite">
-            <p class="empty-state">完成答题后，这里会显示本机最近 20 次学习记录。</p>
-          </div>
-        </section>
+          <figure class="current-affairs-figure">
+            <a href="https://www.gov.cn/zhengce/jiedu/tujie/202603/content_7060803.htm" target="_blank" rel="noreferrer" aria-label="打开中国政府网 2026 年政府工作报告图表原文">
+              <img src="assets/2026-gov-report-targets.webp" alt="新华社发布的 2026 年政府工作报告主要预期目标图表，列出经济增长、就业、粮食产量和碳排放目标" width="640" height="800" loading="lazy">
+            </a>
+            <figcaption>图片来源：新华社 / 中国政府网 · 2026年3月5日</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="learning-path-section" id="learning-path" aria-labelledby="learning-path-title">
+        <div class="learning-path-inner">
+          <header class="path-heading">
+            <h2 id="learning-path-title">党员发展学习路径</h2>
+          </header>
+          <ol class="learning-path" aria-label="党员发展主要阶段">
+            <li class="path-stage is-current" data-path-stage aria-current="step">
+              <span class="path-marker" aria-hidden="true">01</span>
+              <div class="path-copy">
+                <h3>递交入党申请书</h3>
+                <p>向党组织表达入党意愿，了解党员条件与基本要求。</p>
+              </div>
+              <a class="path-link" href="practice.html?topic=%E5%85%9A%E7%AB%A0%E5%9F%BA%E7%A1%80">学习党章基础 <span aria-hidden="true">→</span></a>
+            </li>
+            <li class="path-stage" data-path-stage>
+              <span class="path-marker" aria-hidden="true">02</span>
+              <div class="path-copy">
+                <h3>入党积极分子</h3>
+                <p>接受党组织培养、教育和考察，持续深化理论学习。</p>
+              </div>
+              <a class="path-link" href="practice.html?topic=%E5%85%9A%E7%AB%A0%E5%9F%BA%E7%A1%80">巩固理论基础 <span aria-hidden="true">→</span></a>
+            </li>
+            <li class="path-stage" data-path-stage>
+              <span class="path-marker" aria-hidden="true">03</span>
+              <div class="path-copy">
+                <h3>发展对象</h3>
+                <p>了解政治审查、集中培训等发展要求，端正入党动机。</p>
+              </div>
+              <a class="path-link" href="practice.html?topic=%E5%8F%91%E5%B1%95%E5%85%9A%E5%91%98%E7%A8%8B%E5%BA%8F">学习发展程序 <span aria-hidden="true">→</span></a>
+            </li>
+            <li class="path-stage" data-path-stage>
+              <span class="path-marker" aria-hidden="true">04</span>
+              <div class="path-copy">
+                <h3>预备党员</h3>
+                <p>预备期为一年。认真参加组织生活，在实践中接受教育和考察。</p>
+              </div>
+              <a class="path-link" href="practice.html?topic=%E5%8F%91%E5%B1%95%E5%85%9A%E5%91%98%E7%A8%8B%E5%BA%8F">复习预备期要求 <span aria-hidden="true">→</span></a>
+            </li>
+            <li class="path-stage" data-path-stage>
+              <span class="path-marker" aria-hidden="true">05</span>
+              <div class="path-copy">
+                <h3>正式党员</h3>
+                <p>预备期满后，按规定程序提出转正申请并接受组织审议。</p>
+              </div>
+              <a class="path-link" href="practice.html?topic=%E5%8F%91%E5%B1%95%E5%85%9A%E5%91%98%E7%A8%8B%E5%BA%8F">复习党员义务 <span aria-hidden="true">→</span></a>
+            </li>
+          </ol>
+          <a class="path-source" href="https://www.12371.cn/2026/05/18/ARTI1779102179030620.shtml" target="_blank" rel="noreferrer">查看《中国共产党发展党员工作细则》 <span aria-hidden="true">↗</span></a>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-inner">
-        <span>东南大学材料科学与工程学院</span>
-        <span>答题记录保存在当前浏览器</span>
-      </div>
+      <div class="footer-inner"><span>东南大学材料科学与工程学院</span><span>答题记录保存在当前浏览器</span></div>
     </footer>
     <script type="module" src="src/app.js"></script>
   </body>

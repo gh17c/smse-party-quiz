@@ -12,6 +12,7 @@ const CONTENT_TYPES = new Map([
   ['.png', 'image/png'],
   ['.svg', 'image/svg+xml'],
   ['.webp', 'image/webp'],
+  ['.woff2', 'font/woff2'],
 ]);
 
 export function createStaticServer(root = fileURLToPath(new URL('.', import.meta.url))) {
