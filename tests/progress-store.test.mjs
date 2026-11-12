@@ -46,6 +46,12 @@ test('progress store treats malformed saved JSON as empty and can clear history'
   assert.deepEqual(store.list(), []);
 });
 
+test('progress store skips malformed objects inside a valid JSON history array', () => {
+  const storage = memoryStorage(JSON.stringify([record('valid'), null, { id: 'partial' }]));
+  const store = createProgressStore(storage);
+  assert.deepEqual(store.list(), [record('valid')]);
+});
+
 test('progress store tolerates storage read and write failures', () => {
   const failingStorage = {
     getItem() { throw new Error('blocked'); },

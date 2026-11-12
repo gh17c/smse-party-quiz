@@ -6,10 +6,8 @@ export function normalizeAnswer(question, answer) {
   return answer;
 }
 
-export function getTopicQuestions(questions, topic) {
-  if (!Array.isArray(questions) || typeof topic !== 'string') return [];
-  return questions.filter((question) => {
-    if (!question || question.topic !== topic) return false;
+function isUsableQuestion(question) {
+    if (!question || typeof question !== 'object') return false;
     if ([question.id, question.topic, question.stem, question.explanation].some((value) => typeof value !== 'string' || !value.trim())) return false;
     if (typeof question.source?.title !== 'string' || !question.source.title.trim()) return false;
     if (typeof question.source.url !== 'string' || !question.source.url.startsWith('https://')) return false;
@@ -27,7 +25,19 @@ export function getTopicQuestions(questions, topic) {
         && question.answer.every((id) => optionIds.includes(id));
     }
     return false;
-  });
+}
+
+export function getUsableQuestions(questions) {
+  return Array.isArray(questions) ? questions.filter(isUsableQuestion) : [];
+}
+
+export function getTopicNames(questions) {
+  return [...new Set(getUsableQuestions(questions).map((question) => question.topic))];
+}
+
+export function getTopicQuestions(questions, topic) {
+  if (typeof topic !== 'string') return [];
+  return getUsableQuestions(questions).filter((question) => question.topic === topic);
 }
 
 export function isCorrect(question, answer) {

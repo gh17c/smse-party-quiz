@@ -1,5 +1,5 @@
 import { questionBank } from './questions.js';
-import { getTopicQuestions, isCorrect, selectRandomQuestions } from './quiz-engine.js';
+import { getTopicQuestions, getUsableQuestions, isCorrect, selectRandomQuestions } from './quiz-engine.js';
 import { createProgressStore } from './progress-store.js';
 
 const practiceContent = document.querySelector('#practice-content');
@@ -50,8 +50,7 @@ function getSelectedAnswer(form, question) {
 function getTestPool() {
   const selectedTopic = document.querySelector('#test-topic').value;
   if (selectedTopic !== 'all') return getTopicQuestions(questionBank, selectedTopic);
-  const topics = [...new Set(questionBank.map((question) => question.topic))];
-  return topics.flatMap((topic) => getTopicQuestions(questionBank, topic));
+  return getUsableQuestions(questionBank);
 }
 
 function updateTestAvailability() {

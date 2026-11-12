@@ -1,10 +1,29 @@
 const HISTORY_LIMIT = 20;
+const HISTORY_MODES = new Set(['practice', 'mistakes', 'test']);
+
+function isValidRecord(record) {
+  return record !== null
+    && typeof record === 'object'
+    && typeof record.id === 'string'
+    && HISTORY_MODES.has(record.mode)
+    && typeof record.topic === 'string'
+    && Number.isFinite(record.score)
+    && Number.isFinite(record.total)
+    && record.total > 0
+    && record.score >= 0
+    && record.score <= record.total
+    && Number.isFinite(record.correctCount)
+    && record.correctCount >= 0
+    && record.correctCount <= record.total
+    && typeof record.completedAt === 'string'
+    && Number.isFinite(Date.parse(record.completedAt));
+}
 
 export function createProgressStore(storage, key = 'smse-party-quiz-history') {
   function list() {
     try {
       const parsed = JSON.parse(storage?.getItem(key) || '[]');
-      return Array.isArray(parsed) ? parsed : [];
+      return Array.isArray(parsed) ? parsed.filter(isValidRecord) : [];
     } catch {
       return [];
     }

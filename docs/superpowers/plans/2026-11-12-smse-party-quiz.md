@@ -31,7 +31,7 @@
 - `index.html`：语义化页面骨架、导航与应用挂载点。
 - `styles.css`：品牌视觉、状态样式、响应式布局和焦点样式。
 - `src/questions.js`：示例题库，导出 `questionBank`；每题带来源名称和 URL。
-- `src/quiz-engine.js`：纯答题规则；导出 `normalizeAnswer(question, answer)`、`isCorrect(question, answer)`、`getTopicQuestions(questions, topic)`、`selectRandomQuestions(questions, count, random = Math.random)`。
+- `src/quiz-engine.js`：纯答题规则；导出 `normalizeAnswer(question, answer)`、`isCorrect(question, answer)`、`getUsableQuestions(questions)`、`getTopicNames(questions)`、`getTopicQuestions(questions, topic)`、`selectRandomQuestions(questions, count, random = Math.random)`。
 - `src/progress-store.js`：本地记录读写；导出 `createProgressStore(storage, key = 'smse-party-quiz-history')`，其 `list()`、`add(record)`、`clear()` 均处理存储异常，`add` 保留最近 20 条。
 - `src/app.js`：页面状态与渲染，连接题库、答题规则和记录存储。
 - `package.json`：声明原生 ES 模块模式，不引入运行依赖。
