@@ -93,6 +93,8 @@ select { width: 100%; min-height: 42px; padding: 8px 32px 8px 11px; color: var(-
 .button-red { width: 100%; margin-top: 11px; color: #fff; background: var(--red-700); }
 .button-red:hover { background: var(--red-900); }
 .test-meta { margin: 9px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+.test-availability { margin: 9px 0 0; color: var(--red-800); font-size: 12px; }
+.button:disabled { color: #6c7470; background: #dfe3e0; border-color: #dfe3e0; cursor: not-allowed; transform: none; }
 
 .learning-section, .history-section { padding-top: 24px; }
 .practice-mount, #history-list { min-height: 52px; }
@@ -132,6 +134,19 @@ select { width: 100%; min-height: 42px; padding: 8px 32px 8px 11px; color: var(-
 .history-details strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .history-details span { color: var(--muted); font-size: 11px; }
 .history-score { flex: 0 0 auto; color: var(--red-800); font-size: 13px; font-weight: 900; }
+.mock-test-form { padding-top: 8px; }
+.test-session-note { margin: 0 0 10px; padding: 10px 12px; color: #48534e; background: #e8ede9; border-left: 3px solid var(--green); font-size: 13px; font-weight: 700; }
+.mock-question { padding: 17px 0 18px; border-top: 1px solid var(--line); }
+.mock-question .question-meta { margin-bottom: 10px; }
+.mock-question .question-stem { margin-bottom: 12px; font-size: 16px; }
+.test-submit { min-width: 160px; margin-top: 19px; }
+.test-summary { padding: 18px 0; border-bottom: 1px solid var(--line); }
+.test-summary h3 { margin: 0; font-size: 22px; font-weight: 900; }
+.test-result { padding: 16px 0 18px; border-bottom: 1px solid var(--line); border-left: 3px solid; padding-left: 13px; }
+.test-result.is-correct { border-left-color: var(--green); }
+.test-result.is-wrong { border-left-color: var(--red-700); }
+.test-result .question-count { margin: 0 0 6px; }
+.result-stem { margin: 0 0 7px; color: var(--ink); font-size: 15px; line-height: 1.6; }
 .site-footer { color: #e8e8e5; background: #313a36; }
 .footer-inner { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; }
 

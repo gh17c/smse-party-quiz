@@ -27,7 +27,9 @@ test('topic selection excludes malformed questions and returns an empty list for
     source: { title: '来源', url: 'https://example.org/source' },
   };
   const malformed = { ...valid, id: 'bad', answer: 'missing-option' };
-  assert.deepEqual(getTopicQuestions([valid, malformed], '党章基础'), [valid]);
+  const malformedSource = { ...valid, id: 'bad-source', source: { title: '来源', url: {} } };
+  const malformedOption = { ...valid, id: 'bad-option', options: [{ id: 'A', text: 1 }] };
+  assert.deepEqual(getTopicQuestions([valid, malformed, malformedSource, malformedOption], '党章基础'), [valid]);
   assert.deepEqual(getTopicQuestions([valid], '不存在的专题'), []);
   assert.deepEqual(getTopicQuestions(null, '党章基础'), []);
 });

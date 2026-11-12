@@ -9,14 +9,16 @@ export function normalizeAnswer(question, answer) {
 export function getTopicQuestions(questions, topic) {
   if (!Array.isArray(questions) || typeof topic !== 'string') return [];
   return questions.filter((question) => {
-    if (!question || question.topic !== topic || !question.id || !question.stem || !question.explanation) return false;
-    if (!question.source?.title || !question.source.url?.startsWith('https://')) return false;
+    if (!question || question.topic !== topic) return false;
+    if ([question.id, question.topic, question.stem, question.explanation].some((value) => typeof value !== 'string' || !value.trim())) return false;
+    if (typeof question.source?.title !== 'string' || !question.source.title.trim()) return false;
+    if (typeof question.source.url !== 'string' || !question.source.url.startsWith('https://')) return false;
 
     const options = Array.isArray(question.options) ? question.options : [];
     const optionIds = options.map((option) => option?.id);
     if (optionIds.some((id) => typeof id !== 'string') || new Set(optionIds).size !== optionIds.length) return false;
     if (question.type === 'judge') return typeof question.answer === 'boolean' && options.length === 0;
-    if (!options.length || options.some((option) => !option.text)) return false;
+    if (!options.length || options.some((option) => typeof option?.text !== 'string' || !option.text.trim())) return false;
     if (question.type === 'single') return typeof question.answer === 'string' && optionIds.includes(question.answer);
     if (question.type === 'multiple') {
       return Array.isArray(question.answer)
