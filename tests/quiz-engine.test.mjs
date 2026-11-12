@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isCorrect, normalizeAnswer, selectRandomQuestions } from '../src/quiz-engine.js';
+import { getTopicQuestions, isCorrect, normalizeAnswer, selectRandomQuestions } from '../src/quiz-engine.js';
 import { questionBank } from '../src/questions.js';
 
 const question = (type, answer) => ({ type, answer });
@@ -18,6 +18,18 @@ test('multiple-choice answers match as a complete set regardless of order', () =
   assert.equal(isCorrect(item, ['c', 'a']), true);
   assert.equal(isCorrect(item, ['a']), false);
   assert.equal(isCorrect(item, ['a', 'b', 'c']), false);
+});
+
+test('topic selection excludes malformed questions and returns an empty list for missing topics', () => {
+  const valid = {
+    id: 'good', topic: '党章基础', type: 'single', stem: '题干',
+    options: [{ id: 'A', text: '答案' }], answer: 'A', explanation: '解析',
+    source: { title: '来源', url: 'https://example.org/source' },
+  };
+  const malformed = { ...valid, id: 'bad', answer: 'missing-option' };
+  assert.deepEqual(getTopicQuestions([valid, malformed], '党章基础'), [valid]);
+  assert.deepEqual(getTopicQuestions([valid], '不存在的专题'), []);
+  assert.deepEqual(getTopicQuestions(null, '党章基础'), []);
 });
 
 test('random question selection is repeatable with an injected random source', () => {

@@ -6,6 +6,28 @@ export function normalizeAnswer(question, answer) {
   return answer;
 }
 
+export function getTopicQuestions(questions, topic) {
+  if (!Array.isArray(questions) || typeof topic !== 'string') return [];
+  return questions.filter((question) => {
+    if (!question || question.topic !== topic || !question.id || !question.stem || !question.explanation) return false;
+    if (!question.source?.title || !question.source.url?.startsWith('https://')) return false;
+
+    const options = Array.isArray(question.options) ? question.options : [];
+    const optionIds = options.map((option) => option?.id);
+    if (optionIds.some((id) => typeof id !== 'string') || new Set(optionIds).size !== optionIds.length) return false;
+    if (question.type === 'judge') return typeof question.answer === 'boolean' && options.length === 0;
+    if (!options.length || options.some((option) => !option.text)) return false;
+    if (question.type === 'single') return typeof question.answer === 'string' && optionIds.includes(question.answer);
+    if (question.type === 'multiple') {
+      return Array.isArray(question.answer)
+        && question.answer.length > 0
+        && new Set(question.answer).size === question.answer.length
+        && question.answer.every((id) => optionIds.includes(id));
+    }
+    return false;
+  });
+}
+
 export function isCorrect(question, answer) {
   const normalized = normalizeAnswer(question, answer);
 
