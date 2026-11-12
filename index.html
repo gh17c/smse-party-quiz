@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#9f1d24">
+    <meta name="description" content="东南大学材料科学与工程学院党建知识学习与答题平台">
+    <title>党建知识学习与答题 · 东南大学材料科学与工程学院</title>
+    <link rel="preload" as="image" href="assets/material-microstructure-banner.webp">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#home" aria-label="东南大学材料科学与工程学院党建学习平台首页">
+          <img src="assets/seu-smse-lockup.png" alt="东南大学材料科学与工程学院">
+          <span class="brand-divider" aria-hidden="true"></span>
+          <span class="brand-title">党建学习平台</span>
+        </a>
+        <p class="header-note">学思践悟 · 知行合一</p>
+      </div>
+    </header>
+
+    <nav class="main-nav" aria-label="主导航">
+      <div class="nav-inner">
+        <a href="#home" aria-current="page">首页</a>
+        <a href="#topics">专题练习</a>
+        <a href="#mock-test">模拟测试</a>
+        <a href="#history">学习记录</a>
+      </div>
+    </nav>
+
+    <main id="main">
+      <section class="hero" id="home" aria-labelledby="hero-title">
+        <div class="hero-inner">
+          <p class="eyebrow">材料学院 · 本科生党建学习</p>
+          <h1 id="hero-title">党建知识学习与答题</h1>
+          <p class="hero-copy">面向入党积极分子、发展对象、预备党员及党员</p>
+          <div class="hero-actions">
+            <a class="button button-light" href="#topics">开始专题练习 <span aria-hidden="true">→</span></a>
+            <a class="button button-outline" href="#mock-test">进入模拟测试 <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div class="hero-caption"><span>01</span> 学习 · 思考 · 践行</div>
+      </section>
+
+      <section class="site-main" aria-label="学习内容">
+        <div class="overview" aria-label="题库概览">
+          <div class="overview-item"><strong>30</strong><span>示例题目</span></div>
+          <div class="overview-item"><strong>03</strong><span>学习专题</span></div>
+          <div class="overview-item"><strong>03</strong><span>题目类型</span></div>
+          <p class="sample-note">当前为学习示例题库，正式使用前请核对并替换学院题目</p>
+        </div>
+
+        <div class="content-grid">
+          <section class="topics-section" id="topics" aria-labelledby="topics-title">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">STUDY BY TOPIC</p>
+                <h2 id="topics-title">专题练习</h2>
+              </div>
+              <span class="section-mark" aria-hidden="true">学习专栏</span>
+            </div>
+            <div class="topic-list">
+              <a class="topic-row" href="#practice" data-topic="党章基础">
+                <span class="topic-index">01</span>
+                <span class="topic-body"><strong>党章基础</strong><small>党员条件、权利义务与组织原则</small></span>
+                <span class="topic-count">10 题</span>
+                <span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="#practice" data-topic="党员义务与纪律">
+                <span class="topic-index">02</span>
+                <span class="topic-body"><strong>党员义务与纪律</strong><small>纪律要求、党员权利与行为规范</small></span>
+                <span class="topic-count">10 题</span>
+                <span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="topic-row" href="#practice" data-topic="发展党员程序">
+                <span class="topic-index">03</span>
+                <span class="topic-body"><strong>发展党员程序</strong><small>发展对象培养、接收与预备期</small></span>
+                <span class="topic-count">10 题</span>
+                <span class="topic-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </section>
+
+          <aside class="test-section" id="mock-test" aria-labelledby="test-title">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">PRACTICE TEST</p>
+                <h2 id="test-title">模拟测试</h2>
+              </div>
+              <span class="test-seal" aria-hidden="true">测</span>
+            </div>
+            <p class="test-description">随机抽取 10 道题，提交后查看成绩与逐题解析。</p>
+            <label class="field-label" for="test-topic">选择测试专题</label>
+            <select id="test-topic" name="topic">
+              <option value="all">全部专题</option>
+              <option value="党章基础">党章基础</option>
+              <option value="党员义务与纪律">党员义务与纪律</option>
+              <option value="发展党员程序">发展党员程序</option>
+            </select>
+            <button class="button button-red" type="button" id="start-test">开始测试 <span aria-hidden="true">→</span></button>
+            <p class="test-meta">不限时 · 满分 10 分 · 可查看答案解析</p>
+          </aside>
+        </div>
+
+        <section class="learning-section" id="practice" aria-labelledby="practice-title">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">YOUR LEARNING</p>
+              <h2 id="practice-title">专题答题</h2>
+            </div>
+            <button class="text-button" type="button" id="back-home">返回首页</button>
+          </div>
+          <div class="practice-mount" id="practice-content" aria-live="polite">
+            <p class="empty-state">选择一个学习专题开始答题。</p>
+          </div>
+        </section>
+
+        <section class="history-section" id="history" aria-labelledby="history-title">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">RECENT ACTIVITY</p>
+              <h2 id="history-title">最近学习</h2>
+            </div>
+            <button class="text-button" type="button" id="clear-history">清除记录</button>
+          </div>
+          <div id="history-list" aria-live="polite">
+            <p class="empty-state">完成答题后，这里会显示本机最近 20 次学习记录。</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>东南大学材料科学与工程学院</span>
+        <span>答题记录保存在当前浏览器</span>
+      </div>
+    </footer>
+  </body>
+</html>

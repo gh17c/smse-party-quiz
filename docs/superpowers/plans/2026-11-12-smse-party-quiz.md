@@ -34,6 +34,7 @@
 - `src/quiz-engine.js`：纯答题规则；导出 `normalizeAnswer(question, answer)`、`isCorrect(question, answer)`、`selectRandomQuestions(questions, count, random = Math.random)`。
 - `src/progress-store.js`：本地记录读写；导出 `createProgressStore(storage, key = 'smse-party-quiz-history')`，其 `list()`、`add(record)`、`clear()` 均处理存储异常，`add` 保留最近 20 条。
 - `src/app.js`：页面状态与渲染，连接题库、答题规则和记录存储。
+- `package.json`：声明原生 ES 模块模式，不引入运行依赖。
 - `tests/quiz-engine.test.mjs`：题型判分及随机抽题测试。
 - `tests/progress-store.test.mjs`：本地记录上限、损坏数据及存储异常测试。
 
@@ -59,7 +60,7 @@
 
 ## Task 3: 首页与视觉框架
 
-**文件：** 新建 `index.html`、`styles.css`、`assets/`；将 `work/reference-assets/` 中已核验的学院横向标识及 `outputs/smse-material-microstructure-banner-2.6.png` 整理为网站资源。
+**文件：** 新建 `index.html`、`styles.css`、`assets/`；将 `work/reference-assets/` 中已核验的学院横向标识及 `work/.superpowers/brainstorm/1181-1794463962/content/material-microstructure-2.6.webp` 整理为网站资源。
 
 - [ ] 建立包含学院标识、深红主导航、微观纹理横幅、专题练习入口、模拟测试入口和最近记录区域的语义化首页；导航、按钮和表单控件可键盘聚焦。
 - [ ] 实现微软雅黑优先的字体栈、清晰层级、选中/悬停/焦点状态，以及窄屏布局；沿用工作区已有图片资源，不增加生成图片步骤。
