@@ -33,7 +33,7 @@ npm test
 
 ## 字体
 
-页面使用本地子集版 Noto Sans SC（正文）和 Noto Serif SC（标题），依据 SIL Open Font License 1.1 发布，可用于本项目。许可文本见 `assets/fonts/OFL.txt`。字体以 WOFF2 格式自托管，不依赖在线字体服务；缺少网页字体时会回退到系统中文字体。
+页面统一使用本地子集版 Noto Sans SC，依据 SIL Open Font License 1.1 发布，可用于本项目。许可文本见 `assets/fonts/OFL.txt`。字体以 WOFF2 格式自托管，不依赖在线字体服务；缺少网页字体时会回退到系统中文字体。
 
 首页、专题练习、综合测试说明和独立答题页分别位于 `index.html`、`practice.html`、`test.html` 和 `exam.html`；新增或更名专题时，请同步更新首页和练习页入口。
 
