@@ -308,6 +308,17 @@ if (page === 'home') {
   });
 
   const path = document.querySelector('.learning-path');
+  const studySection = document.querySelector('[data-scroll-reveal]');
+  if (studySection && 'IntersectionObserver' in window) {
+    studySection.classList.add('has-reveal');
+    const studyObserver = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      studySection.classList.add('is-visible');
+      studyObserver.disconnect();
+    }, { threshold: 0.18 });
+    studyObserver.observe(studySection);
+  }
+
   const stages = [...document.querySelectorAll('[data-path-stage]')];
   if (path && stages.length > 1 && 'IntersectionObserver' in window) {
     let frame = 0;
