@@ -2,12 +2,17 @@ import { questionBank } from './questions.js';
 import { createMockTestQuestions, getTopicQuestions, getUsableQuestions, isCorrect, selectRandomQuestions, TEST_BLUEPRINT } from './quiz-engine.js';
 import { createProgressStore } from './progress-store.js';
 import { createTestSession, TEST_SESSION_STORAGE_KEY } from './test-session.js';
+import { clearRemoteHistory, requireActiveSession, syncHistory, userHistoryKey } from './auth-client.js';
+
+const authState = await requireActiveSession();
+if (!authState.redirected) document.body.classList.add('auth-ready');
+if (authState.unavailable) document.body.classList.add('auth-unavailable');
 
 const practiceContent = document.querySelector('#practice-content');
 const historyList = document.querySelector('#history-list');
 let progressStore;
 try {
-  progressStore = createProgressStore(window.localStorage);
+  progressStore = createProgressStore(window.localStorage, userHistoryKey(authState.user));
 } catch {
   progressStore = createProgressStore(null);
 }
@@ -110,12 +115,25 @@ function saveSession() {
   historyRecords = progressStore.add(record);
   session.saved = true;
   if (historyList) renderHistory();
+  if (authState.session) {
+    syncHistory(authState.session, progressStore)
+      .then((records) => {
+        historyRecords = records;
+        if (historyList) renderHistory();
+      })
+      .catch(() => showHistorySyncError());
+  }
+}
+
+function showHistorySyncError() {
+  const status = document.querySelector('#history-sync-status');
+  if (status) status.textContent = '本次记录已保存在当前设备，云端同步失败；联网后请重新登录重试。';
 }
 
 function renderHistory() {
   historyList.replaceChildren();
   if (!historyRecords.length) {
-    historyList.append(makeElement('p', 'empty-state', '完成答题后，这里会显示本机最近 20 次学习记录。'));
+    historyList.append(makeElement('p', 'empty-state', authState.user ? '完成答题后，这里会显示账号最近 20 次学习记录。' : '完成答题后，这里会显示本机最近 20 次学习记录。'));
     return;
   }
 
@@ -301,10 +319,27 @@ const page = document.body.dataset.page;
 
 if (page === 'home') {
   renderHistory();
-  document.querySelector('#clear-history').addEventListener('click', () => {
-    progressStore.clear();
-    historyRecords = [];
-    renderHistory();
+  if (authState.session) {
+    syncHistory(authState.session, progressStore)
+      .then((records) => {
+        historyRecords = records;
+        renderHistory();
+      })
+      .catch(() => showHistorySyncError());
+  }
+  document.querySelector('#clear-history').addEventListener('click', async () => {
+    const clearButton = document.querySelector('#clear-history');
+    clearButton.disabled = true;
+    try {
+      if (authState.session) await clearRemoteHistory(authState.session);
+      progressStore.clear();
+      historyRecords = [];
+      renderHistory();
+    } catch {
+      showHistorySyncError();
+    } finally {
+      clearButton.disabled = false;
+    }
   });
 
   const path = document.querySelector('.learning-path');

@@ -1,6 +1,11 @@
 import { createProgressStore } from './progress-store.js';
 import { getUsableQuestions } from './quiz-engine.js';
 import { getAnsweredCount, getRemainingSeconds, scoreTestSession, TEST_SESSION_STORAGE_KEY } from './test-session.js';
+import { requireActiveSession, syncHistory, userHistoryKey } from './auth-client.js';
+
+const authState = await requireActiveSession();
+if (!authState.redirected) document.body.classList.add('auth-ready');
+if (authState.unavailable) document.body.classList.add('auth-unavailable');
 
 const content = document.querySelector('#exam-content');
 const examStatus = document.querySelector('#exam-status');
@@ -185,9 +190,11 @@ function saveRecord() {
     completedAt: new Date(session.submittedAt).toISOString(),
   };
   try {
-    createProgressStore(window.localStorage).add(record);
+    const progressStore = createProgressStore(window.localStorage, userHistoryKey(authState.user));
+    progressStore.add(record);
     session.recordSaved = true;
     saveSession();
+    if (authState.session) void syncHistory(authState.session, progressStore).catch(() => {});
   } catch {
     // Exam results remain visible when persistent history is blocked.
   }

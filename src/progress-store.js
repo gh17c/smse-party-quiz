@@ -51,5 +51,15 @@ export function createProgressStore(storage, key = 'smse-party-quiz-history') {
     }
   }
 
-  return { list, add, clear };
+  function replace(records) {
+    const validRecords = Array.isArray(records) ? records.filter(isValidRecord).slice(0, HISTORY_LIMIT) : [];
+    try {
+      storage?.setItem(key, JSON.stringify(validRecords));
+    } catch {
+      return validRecords;
+    }
+    return validRecords;
+  }
+
+  return { list, add, clear, replace };
 }

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#9f1d24">
+    <meta name="description" content="材料学院党建学习平台账号登录">
+    <title>账号登录 · 党建学习平台</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-page="login">
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="党建学习平台首页">
+          <img src="assets/seu-smse-lockup.png" alt="东南大学材料科学与工程学院">
+          <span class="brand-divider" aria-hidden="true"></span><span class="brand-title">党建学习平台</span>
+        </a>
+      </div>
+    </header>
+    <main id="main" class="login-main">
+      <section class="login-panel" aria-labelledby="login-title">
+        <h1 id="login-title">账号登录</h1>
+        <p class="login-intro">使用管理员分配的账号进入学习平台。</p>
+        <form id="login-form" novalidate>
+          <div class="login-field" id="login-email-field">
+            <label for="login-email">邮箱</label>
+            <input id="login-email" name="email" type="email" autocomplete="username" inputmode="email" required>
+          </div>
+          <div class="login-field">
+            <label for="login-password">密码</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required>
+          </div>
+          <div class="login-field" id="login-confirm-field" hidden>
+            <label for="login-confirm">确认密码</label>
+            <input id="login-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8">
+          </div>
+          <p class="login-status" id="login-status" role="status" aria-live="polite"></p>
+          <button class="button button-red login-submit" id="login-submit" type="submit">登录</button>
+        </form>
+      </section>
+    </main>
+    <footer class="site-footer"><div class="footer-inner"><span>东南大学材料科学与工程学院</span></div></footer>
+    <script type="module" src="src/login.js"></script>
+  </body>
+</html>

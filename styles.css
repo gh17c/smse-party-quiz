@@ -34,6 +34,8 @@
 }
 
 * { box-sizing: border-box; }
+body.auth-pending:not(.auth-ready) { visibility: hidden; }
+body.auth-unavailable main > :not(.auth-page-error) { display: none; }
 html { scroll-behavior: smooth; }
 @view-transition { navigation: auto; }
 main { view-transition-name: page-content; }
@@ -55,6 +57,10 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid
 .brand-divider { width: 1px; height: 34px; flex: 0 0 auto; background: #c8cfcb; }
 .brand-title { color: var(--red-900); font-size: 22px; font-weight: 700; line-height: 1.3; white-space: nowrap; }
 .header-note { margin: 0; color: var(--muted); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.account-control { min-width: 0; display: flex; align-items: center; gap: 14px; color: #48534d; font-size: 14px; }
+.account-control > span { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-signout { padding: 6px 0; color: var(--red-800); background: transparent; border: 0; font: inherit; font-weight: 650; cursor: pointer; }
+.account-signout:hover { text-decoration: underline; text-underline-offset: 3px; }
 .home-link { color: var(--red-800); text-decoration: none; }
 .home-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 
@@ -115,6 +121,8 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid
 .text-button { padding: 5px 0; color: var(--red-800); background: none; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
 .text-button:hover { text-decoration: underline; text-underline-offset: 3px; }
 .empty-state { margin: 0; padding: 13px 0; color: var(--muted); font-size: 14px; }
+.history-sync-status { margin: 8px 0 0; color: var(--red-800); font-size: 14px; }
+.auth-page-error { max-width: 680px; margin: 32px auto; padding: 16px; color: var(--red-900); background: #fff; border: 1px solid #d9b8bb; }
 .reference-section { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); }
 .reference-section .section-heading { margin-bottom: 10px; }
 .reference-section .section-heading h2 { font-size: 21px; }
@@ -313,6 +321,21 @@ select { width: min(340px, 100%); min-height: 46px; padding: 8px 34px 8px 12px; 
 .site-footer { color: #f3f0e9; background-color: #252c29; background-image: linear-gradient(90deg, rgba(25, 31, 28, .78), rgba(34, 31, 28, .56)), url("assets/footer-microstructure.webp"); background-position: center 48%; background-size: cover; border-top: 2px solid var(--gold); }
 .footer-inner { min-height: 112px; display: flex; align-items: center; justify-content: flex-start; font-size: 16px; font-weight: 600; }
 
+.login-main { width: min(100% - 48px, 520px); min-height: calc(100vh - 202px); display: grid; align-content: center; margin-inline: auto; padding-block: 48px; }
+.login-panel { padding: 32px 36px; background: #fff; border-top: 3px solid var(--red-700); }
+.login-panel h1 { margin: 0; color: var(--ink); font-size: 30px; line-height: 1.35; }
+.login-intro { margin: 8px 0 24px; color: #505a55; font-size: 16px; }
+#login-form { display: grid; gap: 9px; }
+#login-form[hidden], .login-field[hidden] { display: none; }
+.login-field { display: grid; gap: 7px; }
+#login-form label { margin-top: 6px; color: #38433e; font-size: 15px; font-weight: 650; }
+#login-form input { width: 100%; min-height: 48px; padding: 10px 12px; color: var(--ink); background: #fff; border: 1px solid #aeb9b2; border-radius: 3px; font: inherit; }
+#login-form input:focus-visible { outline: 3px solid #26734e; outline-offset: 2px; }
+.login-status { min-height: 24px; margin: 5px 0 0; color: var(--red-800); font-size: 14px; }
+.login-status[data-kind="pending"] { color: #45514b; }
+.login-submit { width: 100%; margin-top: 4px; }
+.login-submit:disabled { cursor: wait; opacity: .7; }
+
 @media (min-width: 761px) and (max-width: 960px) {
   .evergreen-study-inner { grid-template-columns: 1fr; gap: 24px; }
   .study-visual img { height: auto; min-height: 0; max-height: 360px; aspect-ratio: 2.1; }
@@ -325,6 +348,8 @@ select { width: min(340px, 100%); min-height: 46px; padding: 8px 34px 8px 12px; 
   .brand img { width: min(52vw, 220px); }
   .brand-divider { height: 28px; }
   .brand-title { font-size: 17px; }
+  .account-control { gap: 8px; font-size: 13px; }
+  .account-control > span { max-width: 120px; }
   .header-note { display: none; }
   .home-link { display: none; }
   .nav-inner { width: 100%; min-height: 52px; gap: 0; padding-inline: 8px; }
@@ -416,6 +441,9 @@ select { width: min(340px, 100%); min-height: 46px; padding: 8px 34px 8px 12px; 
   .dialog-actions { flex-direction: column-reverse; }
   .dialog-actions .button { width: 100%; }
   .footer-inner { min-height: 80px; font-size: 14px; }
+  .login-main { width: min(100% - 28px, 520px); min-height: calc(100vh - 174px); padding-block: 30px; }
+  .login-panel { padding: 24px 18px; }
+  .login-panel h1 { font-size: 27px; }
   .site-footer { background-position: 58% center; }
 }
 

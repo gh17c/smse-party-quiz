@@ -11,7 +11,7 @@
     <link rel="preload" as="font" href="assets/fonts/noto-sans-sc-subset.woff2" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body data-page="home">
+  <body data-page="home" class="auth-pending">
     <a class="skip-link" href="#main">跳到主要内容</a>
     <header class="site-header">
       <div class="header-inner">
@@ -105,6 +105,7 @@
               <div id="history-list" aria-live="polite">
                 <p class="empty-state">完成答题后，这里会显示本机最近 20 次学习记录。</p>
               </div>
+              <p class="history-sync-status" id="history-sync-status" role="status" aria-live="polite"></p>
             </section>
           </aside>
         </div>
