@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { requireActiveSession, userHistoryKey } from '../src/auth-client.js';
+import { AUTH_CONFIG, isAuthConfigured } from '../src/auth-config.js';
+import { userHistoryKey } from '../src/auth-client.js';
 
 test('history storage is partitioned by authenticated user', () => {
   assert.equal(userHistoryKey(null), 'smse-party-quiz-history');
@@ -8,6 +9,7 @@ test('history storage is partitioned by authenticated user', () => {
   assert.notEqual(userHistoryKey({ id: 'student-a' }), userHistoryKey({ id: 'student-b' }));
 });
 
-test('an unconfigured auth provider keeps the existing local-only mode', async () => {
-  assert.deepEqual(await requireActiveSession(), { enabled: false, session: null, user: null });
+test('configured invite-only authentication requires login', () => {
+  assert.equal(isAuthConfigured, true);
+  assert.equal(AUTH_CONFIG.requireLogin, true);
 });
