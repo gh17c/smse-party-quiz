@@ -1,6 +1,7 @@
 import { questionBank } from './questions.js';
-import { createMockTestQuestions, getTopicQuestions, getUsableQuestions, isCorrect, selectRandomQuestions, TEST_BLUEPRINT } from './quiz-engine.js';
+import { createMockTestQuestions, getTopicQuestions, getUsableQuestions, TEST_BLUEPRINT } from './quiz-engine.js';
 import { createProgressStore } from './progress-store.js';
+import { answerPracticeQuestion, createPracticeSession, createPracticeStore, getPracticeProgress, movePracticeQuestion } from './practice-session.js';
 import { createTestSession, TEST_SESSION_STORAGE_KEY } from './test-session.js';
 import { clearRemoteHistory, requireActiveSession, syncHistory, userHistoryKey } from './auth-client.js';
 
@@ -11,10 +12,13 @@ if (authState.unavailable) document.body.classList.add('auth-unavailable');
 const practiceContent = document.querySelector('#practice-content');
 const historyList = document.querySelector('#history-list');
 let progressStore;
+let practiceStore;
 try {
   progressStore = createProgressStore(window.localStorage, userHistoryKey(authState.user));
+  practiceStore = createPracticeStore(window.localStorage, authState.user?.id);
 } catch {
   progressStore = createProgressStore(null);
+  practiceStore = createPracticeStore(null, authState.user?.id);
 }
 
 let historyRecords = progressStore.list();
@@ -100,10 +104,11 @@ function updateTestAvailability() {
 
 function saveSession() {
   if (!session || session.saved) return;
+  if (session.mode !== 'test' && !getPracticeProgress(session).complete) return;
   const correctCount = session.correctCount ?? session.results.filter(Boolean).length;
   const isTest = session.mode === 'test';
   const record = {
-    id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    id: session.id,
     mode: session.mode,
     topic: session.topic,
     score: isTest ? session.results.reduce((sum, points) => sum + points, 0) : correctCount,
@@ -112,7 +117,8 @@ function saveSession() {
     correctCount,
     completedAt: new Date().toISOString(),
   };
-  historyRecords = progressStore.add(record);
+  historyRecords = progressStore.list().some((item) => item.id === record.id)
+    ? progressStore.list() : progressStore.add(record);
   session.saved = true;
   if (historyList) renderHistory();
   if (authState.session) {
@@ -151,28 +157,42 @@ function renderHistory() {
   historyList.append(list);
 }
 
-function startPractice(topic, questions = getTopicQuestions(questionBank, topic), mode = 'practice') {
-  session = {
-    mode,
-    topic,
-    questions: selectRandomQuestions(questions, questions.length),
-    answers: Array(questions.length),
-    results: Array(questions.length),
-    currentIndex: 0,
-    answered: false,
-    saved: false,
-  };
+function savePracticeProgress() {
+  const saved = practiceStore.save(session);
+  const status = document.querySelector('#practice-save-status');
+  status.hidden = false;
+  status.textContent = saved ? '进度已保存' : '当前浏览器无法保存进度，请勿关闭页面。';
+  status.classList.toggle('is-unavailable', !saved);
+}
+
+function startPractice(topic, questions = getTopicQuestions(questionBank, topic), mode = 'practice', { fresh = mode === 'mistakes', scroll = true } = {}) {
+  session = (!fresh && practiceStore.load(topic, questionBank, mode)) || createPracticeSession(topic, questions, mode);
+  const params = new URLSearchParams({ topic });
+  if (mode === 'mistakes') params.set('mode', 'mistakes');
+  history.replaceState(null, '', `practice.html?${params}`);
+  document.querySelector('#practice-title').textContent = topic;
+  document.querySelectorAll('.practice-topics .topic-row').forEach((link) => {
+    const active = link.dataset.topic === topic;
+    link.classList.toggle('is-active', active);
+    if (active) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
 
   if (!session.questions.length) {
     practiceContent.replaceChildren(makeElement('p', 'empty-state', '这个专题暂时没有题目。'));
+  } else if (session.view === 'summary') {
+    renderPracticeSummary();
   } else {
     renderQuestion();
   }
-  document.querySelector('#practice').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  savePracticeProgress();
+  if (scroll) document.querySelector('#practice').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderQuestion() {
   const question = session.questions[session.currentIndex];
+  const answered = typeof session.results[session.currentIndex] === 'boolean';
+  const progress = getPracticeProgress(session);
   practiceContent.replaceChildren();
 
   const panel = makeElement('article', 'question-panel');
@@ -181,6 +201,7 @@ function renderQuestion() {
   meta.append(
     makeElement('span', 'question-count', `${String(session.currentIndex + 1).padStart(2, '0')} / ${String(session.questions.length).padStart(2, '0')}`),
     makeElement('span', 'question-type', questionTypeLabel(question.type)),
+    makeElement('span', 'practice-answered', `已答 ${progress.answeredCount} / ${session.questions.length} 题`),
   );
   panel.append(meta);
 
@@ -197,16 +218,16 @@ function renderQuestion() {
     input.type = question.type === 'multiple' ? 'checkbox' : 'radio';
     input.name = 'answer';
     input.value = option.id;
-    input.disabled = session.answered;
+    input.disabled = answered;
     const selected = session.answers[session.currentIndex];
-    input.checked = Array.isArray(selected) ? selected.includes(option.id) : selected !== undefined && String(selected) === option.id;
+    input.checked = Array.isArray(selected) ? selected.includes(option.id) : selected !== null && selected !== undefined && String(selected) === option.id;
     row.append(input, makeElement('span', '', option.text));
     fieldset.append(row);
     inputs.push(input);
   }
   form.append(fieldset);
 
-  if (!session.answered) {
+  if (!answered) {
     const error = makeElement('p', 'answer-error', '请先选择答案。');
     error.hidden = true;
     error.setAttribute('role', 'alert');
@@ -215,6 +236,8 @@ function renderQuestion() {
     inputs.forEach((input) => input.addEventListener('change', () => {
       error.hidden = true;
       inputs.forEach((option) => option.removeAttribute('aria-invalid'));
+      answerPracticeQuestion(session, getSelectedAnswer(form, question));
+      savePracticeProgress();
     }));
     form.append(error);
     const submit = makeElement('button', 'button button-red answer-submit', '提交答案');
@@ -230,15 +253,14 @@ function renderQuestion() {
         inputs[0]?.focus();
         return;
       }
-      session.answers[session.currentIndex] = answer;
-      session.results[session.currentIndex] = isCorrect(question, answer);
-      session.answered = true;
+      if (!answerPracticeQuestion(session, answer, true)) return;
+      savePracticeProgress();
       renderQuestion();
     });
   }
   panel.append(form);
 
-  if (session.answered) {
+  if (answered) {
     const correct = session.results[session.currentIndex];
     const feedback = makeElement('section', `answer-feedback ${correct ? 'is-correct' : 'is-wrong'}`);
     feedback.dataset.feedback = '';
@@ -248,27 +270,43 @@ function renderQuestion() {
     appendLearningNotes(feedback, question);
     appendSource(feedback, question);
     panel.append(feedback);
-
-    const next = makeElement('button', 'button button-red next-question', session.currentIndex === session.questions.length - 1 ? '查看本轮结果' : '下一题');
-    next.type = 'button';
-    next.dataset.action = 'next-question';
-    next.addEventListener('click', () => {
-      if (session.currentIndex < session.questions.length - 1) {
-        session.currentIndex += 1;
-        session.answered = false;
-        renderQuestion();
-      } else {
-        renderPracticeSummary();
-      }
-    });
-    panel.append(next);
   }
 
+  const navigation = makeElement('nav', 'practice-navigation');
+  navigation.setAttribute('aria-label', '练习题目导航');
+  const previous = makeElement('button', 'button button-quiet', '上一题');
+  previous.type = 'button';
+  previous.dataset.action = 'previous-question';
+  previous.disabled = session.currentIndex === 0;
+  const lastQuestion = session.currentIndex === session.questions.length - 1;
+  const next = makeElement('button', 'button button-red', !lastQuestion ? '下一题' : progress.complete ? '查看本轮结果' : '继续未答题');
+  next.type = 'button';
+  next.dataset.action = 'next-question';
+  const navigate = (direction) => {
+    movePracticeQuestion(session, direction);
+    savePracticeProgress();
+    renderQuestion();
+    const stem = practiceContent.querySelector('.question-stem');
+    stem.setAttribute('tabindex', '-1');
+    stem.focus({ preventScroll: true });
+    practiceContent.scrollIntoView({ block: 'nearest' });
+  };
+  previous.addEventListener('click', () => navigate(-1));
+  next.addEventListener('click', () => {
+    if (!lastQuestion) navigate(1);
+    else if (progress.complete) renderPracticeSummary();
+    else navigate(progress.firstUnanswered - session.currentIndex);
+  });
+  navigation.append(previous, next);
+  panel.append(navigation);
   practiceContent.append(panel);
 }
 
 function renderPracticeSummary() {
+  if (!getPracticeProgress(session).complete) return;
+  session.view = 'summary';
   saveSession();
+  savePracticeProgress();
   const correctCount = session.results.filter(Boolean).length;
   const wrongQuestions = session.questions.filter((_question, index) => session.results[index] === false);
   const summary = makeElement('section', 'practice-summary');
@@ -289,6 +327,12 @@ function renderPracticeSummary() {
   } else {
     summary.append(makeElement('p', 'all-correct-note', '本轮全部答对。'));
   }
+
+  const restart = makeElement('button', 'button button-quiet', '再练一轮');
+  restart.type = 'button';
+  restart.dataset.action = 'restart-practice';
+  restart.addEventListener('click', () => startPractice(session.topic, session.questions, session.mode, { fresh: true }));
+  summary.append(restart);
 
   const back = makeElement('button', 'text-button summary-back', '返回首页');
   back.type = 'button';
@@ -398,13 +442,20 @@ if (page === 'practice') {
     if (link) {
       event.preventDefault();
       const topic = link.dataset.topic;
-      history.replaceState(null, '', `practice.html?topic=${encodeURIComponent(topic)}`);
       startPractice(topic);
     }
   });
 
-  const topic = new URLSearchParams(window.location.search).get('topic');
-  if (topic && getTopicQuestions(questionBank, topic).length) startPractice(topic);
+  const params = new URLSearchParams(window.location.search);
+  const topic = params.get('topic');
+  const mode = params.get('mode') === 'mistakes' ? 'mistakes' : 'practice';
+  const last = practiceStore.last();
+  if (topic && getTopicQuestions(questionBank, topic).length) {
+    const activeMode = mode === 'mistakes' && practiceStore.load(topic, questionBank, mode) ? mode : 'practice';
+    startPractice(topic, undefined, activeMode, { fresh: false, scroll: false });
+  } else if (!topic && last && getTopicQuestions(questionBank, last.topic).length) {
+    startPractice(last.topic, undefined, last.mode, { fresh: false, scroll: false });
+  }
 }
 
 if (page === 'test') {
