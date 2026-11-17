@@ -39,12 +39,14 @@ npm test
 
 ## 登录与账号管理
 
-网站使用 Supabase 登录。学生在登录页输入学号和密码；学号会映射为内部邮箱别名，不需要学生邮箱或邀请邮件。首页、练习、测试和答题页均要求登录，学习记录同步到 Supabase，并按用户 ID 隔离。
+学生首次使用时在登录页点击“注册”，填写学号、姓名和至少 6 位密码，注册成功后直接进入平台，无需邮箱或邮件确认。以后使用学号和密码登录。已有账号及答题记录继续可用。学号会映射为内部邮箱别名，学习记录仍由 Supabase 按用户 ID 隔离。
 
-1. 在 Authentication 的 Sign In / Providers 设置中关闭 **Allow new users to sign up**，只保留 Email 登录。
+1. 在 Authentication 的 Sign In / Providers 设置中开启 **Allow new users to sign up**，关闭 **Confirm email**，保留 Email 登录，匿名登录保持关闭。由于使用不接收邮件的内部别名，必须关闭邮件确认，否则学生无法完成注册。
 2. 在 SQL Editor 执行 `supabase/quiz-history.sql`，创建答题记录表和用户行级安全策略。
-3. 管理员进入 Authentication / Users，选择 **Add user → Create new user**。邮箱填写 `<学号>@students.smse-party-quiz.invalid`，设置一个该学生独有的初始密码，并将邮箱标记为已确认。姓名可填入 User Metadata 的 `full_name` 字段。学生在网站登录页输入学号和初始密码即可登录，不会发送邮件。
+3. 管理员不再需要逐个创建账号。注册填写的学号、姓名分别保存在账号 User Metadata 的 `student_id`、`full_name` 字段，可在 Authentication / Users 中打开账号查看。需要完整名单时，在 Supabase SQL Editor 运行 `supabase/student-directory.sql`，可查看学号、姓名、注册时间和最近登录时间，并通过后台导出结果。
 4. 不要把 service role key 配置到网站，也不要交给学生。前端公开 key 只能与 RLS 一起使用。
+
+姓名由学生自行填写，未经过身份核验；请根据班级名单核对。后台名单查询仅供项目管理员在 Supabase 执行，不向学生提供名单接口。学号已注册时不会覆盖原账号；忘记密码请联系管理员处理，内部邮箱别名无法接收密码重置邮件。
 
 启用前已存在的匿名本机答题记录不会自动归到任何学生账号。登录后的本机记录按用户 ID 分开保存；“清除记录”会同时清除该账号的云端历史。答题中进度只保存在当前标签页，结束或退出登录后会清除。
 

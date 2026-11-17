@@ -21,16 +21,25 @@
     </header>
     <main id="main" class="login-main">
       <section class="login-panel" aria-labelledby="login-title">
+        <div class="login-tabs" role="group" aria-label="账号操作">
+          <button type="button" data-auth-mode="login" aria-pressed="true">登录</button>
+          <button type="button" data-auth-mode="register" aria-pressed="false">注册</button>
+        </div>
         <h1 id="login-title">账号登录</h1>
-        <p class="login-intro">输入管理员分配给你的学号和密码。</p>
+        <p class="login-intro">使用学号和密码进入学习平台。</p>
         <form id="login-form" novalidate>
           <div class="login-field">
             <label for="login-student-id">学号</label>
-            <input id="login-student-id" name="student-id" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+            <input id="login-student-id" name="student-id" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="32" required>
+          </div>
+          <div class="login-field" id="register-name-field" hidden>
+            <label for="register-name">姓名</label>
+            <input id="register-name" name="full-name" type="text" autocomplete="name" maxlength="40" disabled>
           </div>
           <div class="login-field">
             <label for="login-password">密码</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" aria-describedby="register-password-hint" required>
+            <span id="register-password-hint" class="login-hint" hidden>至少 6 位，请设置自己的密码。</span>
           </div>
           <p class="login-status" id="login-status" role="status" aria-live="polite"></p>
           <button class="button button-red login-submit" id="login-submit" type="submit">登录</button>

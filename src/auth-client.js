@@ -49,7 +49,7 @@ async function request(path, { token, method = 'GET', body, headers = {} } = {})
   if (!response.ok) {
     const error = new Error(payload?.msg || payload?.message || payload?.error_description || payload?.error || '服务暂时不可用，请稍后重试。');
     error.status = response.status;
-    error.code = payload?.code;
+    error.code = payload?.error_code || payload?.code;
     throw error;
   }
   return payload;
@@ -107,6 +107,37 @@ export async function signIn(studentId, password) {
     method: 'POST',
     body: { email: studentLoginEmail(studentId), password },
   });
+  saveStoredSession(session);
+  return session;
+}
+
+export async function signUp(studentId, fullName, password) {
+  if (!isAuthConfigured) throw new Error('登录服务尚未配置，请联系网站管理员。');
+  const email = studentLoginEmail(studentId);
+  const name = String(fullName || '').trim();
+  if (!name || name.length > 40 || /[\p{Cc}\p{Cf}]/u.test(name)) {
+    throw new Error('请填写真实姓名，最多 40 个字。');
+  }
+  if (typeof password !== 'string' || password.length < 6) {
+    throw new Error('密码至少需要 6 位。');
+  }
+  let session;
+  try {
+    session = await request('/auth/v1/signup', {
+      method: 'POST',
+      body: { email, password, data: { student_id: email.split('@')[0], full_name: name } },
+    });
+  } catch (error) {
+    if (['user_already_exists', 'email_exists'].includes(error.code) || /already registered/i.test(error.message)) {
+      throw new Error('该学号已注册，请直接登录；忘记密码请联系管理员。');
+    }
+    if (error.code === 'signup_disabled') throw new Error('注册暂未开放，请联系管理员。');
+    throw error;
+  }
+  if (!session?.access_token || !session?.user?.id) {
+    if (session?.identities?.length === 0) throw new Error('该学号已注册，请直接登录。');
+    throw new Error('注册尚未完成：请管理员检查是否已关闭邮箱确认。');
+  }
   saveStoredSession(session);
   return session;
 }
@@ -218,7 +249,7 @@ function addAccountControl(user) {
   const studentId = user.email?.split('@')[0] || '';
   const name = user.user_metadata?.full_name || user.user_metadata?.name;
   email.textContent = name ? `${name} · ${studentId}` : studentId || '已登录';
-  email.title = user.email || '';
+  email.title = name ? `${name} · ${studentId}` : studentId;
   const button = document.createElement('button');
   button.className = 'account-signout';
   button.type = 'button';
@@ -237,7 +268,7 @@ function addAccountControl(user) {
 
 export function authErrorMessage(error) {
   const message = String(error?.message || '登录失败，请稍后重试。');
-  if (error?.status === 400 || error?.status === 401) return '学号或密码不正确，请确认账号已由管理员创建。';
+  if (error?.status === 400 || error?.status === 401) return '学号或密码不正确；首次使用请先注册。';
   if (error?.status === 429) return '尝试次数过多，请稍后再试。';
   if (error?.status === 0 || /failed to fetch|network/i.test(message)) return '网络连接失败，请检查网络后重试。';
   return message;
