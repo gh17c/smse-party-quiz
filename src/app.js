@@ -1,7 +1,7 @@
 import { questionBank } from './questions.js';
 import { createMockTestQuestions, getTopicQuestions, getUsableQuestions, TEST_BLUEPRINT } from './quiz-engine.js';
 import { createProgressStore } from './progress-store.js';
-import { answerPracticeQuestion, createPracticeSession, createPracticeStore, getPracticeProgress, movePracticeQuestion } from './practice-session.js';
+import { answerPracticeQuestion, createPracticeSession, createPracticeStore, getPracticeProgress, getPracticeQuestionPage, goToPracticeQuestion, movePracticeQuestion } from './practice-session.js';
 import { createTestSession, TEST_SESSION_STORAGE_KEY } from './test-session.js';
 import { clearRemoteHistory, requireActiveSession, syncHistory, userHistoryKey } from './auth-client.js';
 
@@ -159,10 +159,62 @@ function renderHistory() {
 
 function savePracticeProgress() {
   const saved = practiceStore.save(session);
+  const overview = document.querySelector('#practice-overview');
   const status = document.querySelector('#practice-save-status');
+  const statusLabel = document.querySelector('#practice-save-label');
+  if (overview) overview.hidden = !session || !session.questions.length || session.view === 'summary';
   status.hidden = false;
-  status.textContent = saved ? '进度已保存' : '当前浏览器无法保存进度，请勿关闭页面。';
+  statusLabel.textContent = saved ? '已保存' : '未保存';
+  status.title = saved ? '练习进度已保存在此浏览器' : '当前浏览器无法保存进度，请勿关闭页面。';
   status.classList.toggle('is-unavailable', !saved);
+}
+
+function renderPracticeOverview(requestedPage) {
+  const progress = getPracticeProgress(session);
+  const count = session.questions.length;
+  const answered = progress.answeredCount;
+  const mapGrid = document.querySelector('#practice-map-grid');
+  const defaultPage = Number(mapGrid.dataset.page || Math.floor(session.currentIndex / 30));
+  const activePage = getPracticeQuestionPage(session, Number.isInteger(requestedPage) ? requestedPage : defaultPage);
+  mapGrid.dataset.page = String(activePage.page);
+  const bar = document.querySelector('#practice-progress-track');
+  const fill = document.querySelector('#practice-progress-fill');
+  bar.setAttribute('aria-valuemax', String(count));
+  bar.setAttribute('aria-valuenow', String(answered));
+  bar.setAttribute('aria-valuetext', `已提交 ${answered} / ${count} 题`);
+  fill.style.transform = `scaleX(${count ? answered / count : 0})`;
+  document.querySelector('#practice-progress-caption').textContent = `已完成 ${answered} / ${count} 题`;
+  document.querySelector('#practice-map-location').textContent = `当前 ${session.currentIndex + 1} / ${count} 题`;
+  const unanswered = document.querySelector('#practice-next-unanswered');
+  unanswered.textContent = progress.complete ? '查看本轮结果' : '继续未答';
+  unanswered.disabled = progress.complete && session.view === 'summary';
+  unanswered.dataset.complete = String(progress.complete);
+
+  mapGrid.replaceChildren();
+  for (const item of activePage.items) {
+    const label = item.state === 'correct' ? '已答对' : item.state === 'incorrect' ? '已答错' : item.state === 'draft' ? '已选未提交' : '未作答';
+    const button = makeElement('button', `practice-map-item is-${item.state}`, String(item.index + 1));
+    button.type = 'button';
+    button.dataset.questionIndex = String(item.index);
+    button.setAttribute('aria-label', `第 ${item.index + 1} 题，${label}${item.current ? '，当前题目' : ''}`);
+    if (item.current) button.setAttribute('aria-current', 'step');
+    mapGrid.append(button);
+  }
+
+  const pager = getPracticeQuestionPage(session, activePage.page);
+  const start = pager.page * 30 + 1;
+  const end = pager.page * 30 + pager.items.length;
+  document.querySelector('#practice-map-range').textContent = `${start}–${end} / ${count}`;
+  document.querySelector('#practice-map-prev').disabled = pager.page === 0;
+  document.querySelector('#practice-map-next').disabled = pager.page === pager.pageCount - 1;
+  document.querySelector('#practice-map-prev').dataset.page = String(pager.page - 1);
+  document.querySelector('#practice-map-next').dataset.page = String(pager.page + 1);
+  document.querySelectorAll('.practice-topics .topic-row').forEach((link) => {
+    if (link.dataset.topic === session.topic) {
+      const description = link.querySelector('.topic-body small');
+      if (description) description.textContent = `${getTopicQuestions(questionBank, session.topic).length} 道题 · 进度 ${answered} / ${count}`;
+    }
+  });
 }
 
 function startPractice(topic, questions = getTopicQuestions(questionBank, topic), mode = 'practice', { fresh = mode === 'mistakes', scroll = true } = {}) {
@@ -170,6 +222,7 @@ function startPractice(topic, questions = getTopicQuestions(questionBank, topic)
   const params = new URLSearchParams({ topic });
   if (mode === 'mistakes') params.set('mode', 'mistakes');
   history.replaceState(null, '', `practice.html?${params}`);
+  document.querySelector('#practice-map-grid').dataset.page = String(Math.floor(session.currentIndex / 30));
   document.querySelector('#practice-title').textContent = topic;
   document.querySelectorAll('.practice-topics .topic-row').forEach((link) => {
     const active = link.dataset.topic === topic;
@@ -185,6 +238,7 @@ function startPractice(topic, questions = getTopicQuestions(questionBank, topic)
   } else {
     renderQuestion();
   }
+  if (session.questions.length && session.view !== 'summary') renderPracticeOverview();
   savePracticeProgress();
   if (scroll) document.querySelector('#practice').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -197,6 +251,10 @@ function renderQuestion() {
 
   const panel = makeElement('article', 'question-panel');
   panel.dataset.practiceQuestion = '';
+  if (session.motion) {
+    panel.dataset.motion = session.motion;
+    session.motion = null;
+  }
   const meta = makeElement('div', 'question-meta');
   meta.append(
     makeElement('span', 'question-count', `${String(session.currentIndex + 1).padStart(2, '0')} / ${String(session.questions.length).padStart(2, '0')}`),
@@ -237,6 +295,7 @@ function renderQuestion() {
       error.hidden = true;
       inputs.forEach((option) => option.removeAttribute('aria-invalid'));
       answerPracticeQuestion(session, getSelectedAnswer(form, question));
+      if (page === 'practice') renderPracticeOverview();
       savePracticeProgress();
     }));
     form.append(error);
@@ -254,6 +313,7 @@ function renderQuestion() {
         return;
       }
       if (!answerPracticeQuestion(session, answer, true)) return;
+      if (page === 'practice') renderPracticeOverview();
       savePracticeProgress();
       renderQuestion();
     });
@@ -282,18 +342,21 @@ function renderQuestion() {
   const next = makeElement('button', 'button button-red', !lastQuestion ? '下一题' : progress.complete ? '查看本轮结果' : '继续未答题');
   next.type = 'button';
   next.dataset.action = 'next-question';
-  const navigate = (direction) => {
+  const navigate = (direction, event) => {
     movePracticeQuestion(session, direction);
+    session.motion = event?.detail ? direction < 0 ? 'previous' : 'next' : '';
+    document.querySelector('#practice-question-map').open = false;
     savePracticeProgress();
     renderQuestion();
+    renderPracticeOverview();
     const stem = practiceContent.querySelector('.question-stem');
     stem.setAttribute('tabindex', '-1');
     stem.focus({ preventScroll: true });
     practiceContent.scrollIntoView({ block: 'nearest' });
   };
-  previous.addEventListener('click', () => navigate(-1));
-  next.addEventListener('click', () => {
-    if (!lastQuestion) navigate(1);
+  previous.addEventListener('click', (event) => navigate(-1, event));
+  next.addEventListener('click', (event) => {
+    if (!lastQuestion) navigate(1, event);
     else if (progress.complete) renderPracticeSummary();
     else navigate(progress.firstUnanswered - session.currentIndex);
   });
@@ -339,6 +402,7 @@ function renderPracticeSummary() {
   back.addEventListener('click', returnHome);
   summary.append(back);
   practiceContent.replaceChildren(summary);
+  if (page === 'practice') renderPracticeOverview();
 }
 
 function startTest() {
@@ -432,8 +496,10 @@ document.querySelectorAll('.topic-row[data-topic]').forEach((link) => {
   const count = getTopicQuestions(questionBank, link.dataset.topic).length;
   const countLabel = link.querySelector('.topic-count');
   const description = link.querySelector('.topic-body small');
+  const savedSession = page === 'practice' ? practiceStore.load(link.dataset.topic, questionBank) : null;
+  const savedCount = savedSession ? getPracticeProgress(savedSession).answeredCount : 0;
   if (countLabel) countLabel.textContent = `${count} 题`;
-  if (description && document.body.dataset.page === 'practice') description.textContent = `${count} 道题`;
+  if (description && page === 'practice') description.textContent = `${count} 道题${savedCount ? ` · 已答 ${savedCount}` : ''}`;
 });
 
 if (page === 'practice') {
@@ -444,6 +510,56 @@ if (page === 'practice') {
       const topic = link.dataset.topic;
       startPractice(topic);
     }
+  });
+
+  document.querySelector('#practice-first-topic').addEventListener('click', () => {
+    document.querySelector('.practice-topics .topic-row[data-topic="党章基础"]').click();
+  });
+
+  document.querySelector('#practice-map-grid').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-question-index]');
+    const previousIndex = session?.currentIndex;
+    if (!button || !session || !goToPracticeQuestion(session, Number(button.dataset.questionIndex))) return;
+    session.motion = event.detail ? Number(button.dataset.questionIndex) < previousIndex ? 'previous' : 'next' : '';
+    savePracticeProgress();
+    renderQuestion();
+    renderPracticeOverview();
+    document.querySelector('#practice-question-map').open = false;
+    const stem = practiceContent.querySelector('.question-stem');
+    stem.setAttribute('tabindex', '-1');
+    stem.focus({ preventScroll: true });
+    practiceContent.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+
+  document.querySelector('#practice-map-prev').addEventListener('click', () => {
+    const currentPage = Math.floor(session.currentIndex / 30);
+    const map = document.querySelector('#practice-question-map');
+    map.open = true;
+    renderPracticeOverview(currentPage - 1);
+    document.querySelector('#practice-map-grid').querySelector('.practice-map-item')?.focus();
+  });
+  document.querySelector('#practice-map-next').addEventListener('click', () => {
+    const currentPage = Number(document.querySelector('#practice-map-grid').dataset.page || 0);
+    const nextPage = Math.max(0, Math.min(Math.ceil(session.questions.length / 30) - 1, currentPage + 1));
+    const map = document.querySelector('#practice-question-map');
+    map.open = true;
+    renderPracticeOverview(nextPage);
+    document.querySelector('#practice-map-grid').querySelector('.practice-map-item')?.focus();
+  });
+  document.querySelector('#practice-next-unanswered').addEventListener('click', () => {
+    const progress = getPracticeProgress(session);
+    if (progress.complete) {
+      renderPracticeSummary();
+      return;
+    }
+    goToPracticeQuestion(session, progress.firstUnanswered);
+    savePracticeProgress();
+    renderQuestion();
+    renderPracticeOverview();
+    const stem = practiceContent.querySelector('.question-stem');
+    stem.setAttribute('tabindex', '-1');
+    stem.focus({ preventScroll: true });
+    practiceContent.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
 
   const params = new URLSearchParams(window.location.search);

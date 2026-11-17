@@ -139,3 +139,56 @@ test('corrupt storage and unavailable localStorage never break practice', () => 
   assert.equal(fallback.load('党章基础', questions).currentIndex, 2);
   assert.equal(practice.createPracticeStore(null).load('党章基础', questions), null);
 });
+
+test('question map distinguishes drafts, submitted wrong answers and unselected false judge values', () => {
+  assert.equal(typeof practice.getPracticeQuestionPage, 'function');
+  const session = practice.createPracticeSession('党章基础', questions);
+  session.questions = [...questions];
+  practice.answerPracticeQuestion(session, 'A', true);
+  session.currentIndex = 1;
+  practice.answerPracticeQuestion(session, ['A']);
+  session.currentIndex = 2;
+  let map = practice.getPracticeQuestionPage(session);
+  assert.deepEqual(map.items, [
+    { index: 0, state: 'incorrect', current: false },
+    { index: 1, state: 'draft', current: false },
+    { index: 2, state: 'unanswered', current: true },
+  ]);
+  practice.answerPracticeQuestion(session, false, true);
+  map = practice.getPracticeQuestionPage(session);
+  assert.deepEqual(map.items[2], { index: 2, state: 'correct', current: true });
+});
+
+test('long question maps open around the current question and bound page selection', () => {
+  const bank = Array.from({ length: 65 }, (_, index) => ({ ...questions[0], id: `item-${index}` }));
+  const session = practice.createPracticeSession('党章基础', bank);
+  session.currentIndex = 41;
+  const current = practice.getPracticeQuestionPage(session);
+  assert.equal(current.page, 1);
+  assert.equal(current.pageCount, 3);
+  assert.equal(current.items.length, 30);
+  assert.equal(current.items[0].index, 30);
+  assert.equal(current.items[29].index, 59);
+  assert.equal(current.items.find((item) => item.current).index, 41);
+  assert.equal(practice.getPracticeQuestionPage(session, -1).items[0].index, 0);
+  assert.deepEqual(practice.getPracticeQuestionPage(session, 99).items.map((item) => item.index), [60, 61, 62, 63, 64]);
+});
+
+test('jumping from the question map keeps answers and persists the chosen position', () => {
+  assert.equal(typeof practice.goToPracticeQuestion, 'function');
+  const session = practice.createPracticeSession('党章基础', questions);
+  session.questions = [...questions];
+  practice.answerPracticeQuestion(session, 'B', true);
+  assert.equal(practice.goToPracticeQuestion(session, 2), true);
+  practice.answerPracticeQuestion(session, false);
+  assert.equal(practice.goToPracticeQuestion(session, -1), false);
+  assert.equal(practice.goToPracticeQuestion(session, 3), false);
+  assert.equal(practice.goToPracticeQuestion(session, 1.5), false);
+  assert.equal(session.currentIndex, 2);
+  const storage = memoryStorage();
+  practice.createPracticeStore(storage, 'student-a').save(session);
+  const restored = practice.createPracticeStore(storage, 'student-a').load('党章基础', questions);
+  assert.equal(restored.currentIndex, 2);
+  assert.deepEqual(restored.answers, ['B', null, false]);
+  assert.deepEqual(restored.results, [true, null, null]);
+});

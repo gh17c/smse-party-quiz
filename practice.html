@@ -24,8 +24,7 @@
       <div class="nav-inner"><a href="index.html">首页</a><a href="practice.html" aria-current="page">专题练习</a><a href="test.html">综合测试</a></div>
     </nav>
     <main id="main" class="site-main page-main">
-      <div class="page-heading">
-        <p class="section-kicker">STUDY BY TOPIC</p>
+      <div class="page-heading practice-page-heading">
         <h1>专题练习</h1>
         <p>选择学习专题，逐题作答并查看知识解析。</p>
       </div>
@@ -45,11 +44,27 @@
         <section class="practice-workspace" id="practice" aria-labelledby="practice-title">
           <div class="section-heading">
             <h2 id="practice-title">开始练习</h2>
-            <a class="text-button" href="index.html">返回首页</a>
+            <p id="practice-save-status" class="practice-save-state" role="status" hidden><span id="practice-save-label"></span></p>
           </div>
-          <p id="practice-save-status" class="practice-save-state" role="status" hidden></p>
+          <div class="practice-overview" id="practice-overview" hidden>
+            <div class="practice-progress-heading"><span id="practice-progress-caption">练习进度</span><button class="text-button" id="practice-next-unanswered" type="button">继续未答</button></div>
+            <div class="practice-progress-track" id="practice-progress-track" role="progressbar" aria-label="本专题已提交题目" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span id="practice-progress-fill"></span></div>
+            <details class="practice-question-map" id="practice-question-map">
+              <summary><span>答题卡</span><span class="practice-map-summary-end"><span id="practice-map-location"></span><svg class="practice-map-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+              <div class="practice-map-panel">
+                <div class="practice-map-legend"><span class="map-key-correct">答对</span><span class="map-key-incorrect">答错</span><span class="map-key-draft">待提交</span><span class="map-key-unanswered">未答</span></div>
+                <nav class="practice-map-grid" id="practice-map-grid" aria-label="按题号跳转"></nav>
+                <div class="practice-map-pagination"><button class="practice-map-page" id="practice-map-prev" type="button" aria-label="上一组题号">上一组</button><span id="practice-map-range" aria-live="polite"></span><button class="practice-map-page" id="practice-map-next" type="button" aria-label="下一组题号">下一组</button></div>
+              </div>
+            </details>
+          </div>
           <div class="practice-mount" id="practice-content" aria-live="polite">
-            <p class="empty-state">选择左侧专题开始答题。</p>
+            <div class="practice-welcome">
+              <h3>选择专题，开始练习</h3>
+              <p>每题提交后可查看解析，练习进度自动保存。</p>
+              <ol class="practice-start-steps"><li>选择专题</li><li>逐题作答</li><li>回看解析</li></ol>
+              <button class="button button-red" id="practice-first-topic" type="button">从党章基础开始</button>
+            </div>
           </div>
         </section>
       </section>

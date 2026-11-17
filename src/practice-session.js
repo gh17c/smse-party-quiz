@@ -34,8 +34,35 @@ export function answerPracticeQuestion(session, answer, submit = false) {
 }
 
 export function movePracticeQuestion(session, direction) {
-  session.currentIndex = Math.max(0, Math.min(session.questions.length - 1, session.currentIndex + direction));
+  goToPracticeQuestion(session, Math.max(0, Math.min(session.questions.length - 1, session.currentIndex + direction)));
+}
+
+export function goToPracticeQuestion(session, index) {
+  if (!Number.isInteger(index) || index < 0 || index >= session.questions.length) return false;
+  session.currentIndex = index;
   session.view = 'question';
+  return true;
+}
+
+export function getPracticeQuestionPage(session, requestedPage = Math.floor(session.currentIndex / 30)) {
+  const pageCount = Math.max(1, Math.ceil(session.questions.length / 30));
+  const page = Math.max(0, Math.min(pageCount - 1, Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 0));
+  const start = page * 30;
+  return {
+    page,
+    pageCount,
+    items: session.questions.slice(start, start + 30).map((_question, offset) => {
+      const index = start + offset;
+      const result = session.results[index];
+      const answer = session.answers[index];
+      const hasDraft = answer !== null && answer !== undefined && (!Array.isArray(answer) || answer.length > 0);
+      return {
+        index,
+        state: result === true ? 'correct' : result === false ? 'incorrect' : hasDraft ? 'draft' : 'unanswered',
+        current: index === session.currentIndex,
+      };
+    }),
+  };
 }
 
 export function getPracticeProgress(session) {
