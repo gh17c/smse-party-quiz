@@ -4,12 +4,6 @@ body[data-page="home"] .hero {
     linear-gradient(90deg, rgba(44, 8, 12, .86), rgba(48, 10, 14, .62) 52%, rgba(34, 14, 12, .38)),
     url("material-microstructure-banner.webp");
 }
-body[data-page="home"] .hero h1,
-body[data-page="home"] .hero-copy,
-body[data-page="home"] .hero-actions,
-body[data-page="home"] .hero-feature {
-  animation: none;
-}
 body[data-page="home"] .hero-feature {
   max-width: 310px;
   padding: 5px 0 5px 24px;
@@ -44,7 +38,6 @@ body[data-page="home"] .topic-row {
   transition: background-color 150ms ease;
 }
 body[data-page="home"] .topic-row:hover {
-  padding-inline: 6px;
   background: rgba(255, 255, 255, .58);
 }
 body[data-page="home"] .topic-body strong {
