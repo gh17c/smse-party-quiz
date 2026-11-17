@@ -1,0 +1,97 @@
+/* Homepage refinements retain the school's red-and-paper visual identity. */
+body[data-page="home"] .hero {
+  background-image:
+    linear-gradient(90deg, rgba(44, 8, 12, .86), rgba(48, 10, 14, .62) 52%, rgba(34, 14, 12, .38)),
+    url("material-microstructure-banner.webp");
+}
+body[data-page="home"] .hero h1,
+body[data-page="home"] .hero-copy,
+body[data-page="home"] .hero-actions,
+body[data-page="home"] .hero-feature {
+  animation: none;
+}
+body[data-page="home"] .hero-feature {
+  max-width: 310px;
+  padding: 5px 0 5px 24px;
+  background: transparent;
+  border-left: 1px solid rgba(245, 231, 201, .8);
+  box-shadow: none;
+}
+body[data-page="home"] .hero-feature h2 {
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-shadow: 0 1px 12px rgba(20, 5, 7, .22);
+}
+body[data-page="home"] .hero-feature > span {
+  margin-top: 7px;
+  color: #f5eeeb;
+  font-size: 15px;
+  line-height: 1.75;
+  text-shadow: 0 1px 10px rgba(20, 5, 7, .32);
+}
+body[data-page="home"] .hero-feature a {
+  margin-top: 12px;
+  color: #f5e7c9;
+  font-size: 14px;
+  font-weight: 550;
+}
+body[data-page="home"] .section-heading h2 {
+  font-weight: 650;
+}
+body[data-page="home"] .topic-row {
+  min-height: 74px;
+  transition: background-color 150ms ease;
+}
+body[data-page="home"] .topic-row:hover {
+  padding-inline: 6px;
+  background: rgba(255, 255, 255, .58);
+}
+body[data-page="home"] .topic-body strong {
+  font-weight: 550;
+}
+body[data-page="home"] .topic-arrow {
+  font-size: 17px;
+}
+body[data-page="home"] .test-promo h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+body[data-page="home"] .test-promo p {
+  line-height: 1.8;
+}
+@media (max-width: 900px) and (min-width: 761px) {
+  body[data-page="home"] .hero-inner {
+    grid-template-columns: minmax(0, 1.3fr) minmax(190px, .7fr);
+    gap: 30px;
+  }
+  body[data-page="home"] .hero-feature {
+    padding-left: 18px;
+  }
+  body[data-page="home"] .hero-feature h2 {
+    font-size: 22px;
+  }
+}
+@media (max-width: 760px) {
+  body[data-page="home"] .hero {
+    background-image:
+      linear-gradient(90deg, rgba(44, 8, 12, .82), rgba(48, 10, 14, .62) 70%, rgba(34, 14, 12, .46)),
+      url("material-microstructure-banner.webp");
+  }
+  body[data-page="home"] .hero-feature {
+    max-width: none;
+    padding: 12px 0 0;
+    border-top: 1px solid rgba(245, 231, 201, .62);
+    border-left: 0;
+  }
+  body[data-page="home"] .hero-feature h2 {
+    font-size: 21px;
+  }
+  body[data-page="home"] .hero-feature > span {
+    max-width: 36ch;
+    font-size: 14px;
+  }
+  body[data-page="home"] .hero-feature a {
+    margin-top: 7px;
+  }
+}
