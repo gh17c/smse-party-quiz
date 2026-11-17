@@ -36,14 +36,15 @@
   .test-briefing { padding: 24px 20px; border-radius: 12px; }
   .briefing-heading h2 { font-size: 18px; }
   .briefing-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px; margin: 24px 0 28px; }
-  .briefing-facts dt { font-size: 13px; }
+  .briefing-facts dt { font-size: 14px; }
   .briefing-facts dd { font-size: 20px; }
   .briefing-facts > div:last-child dd { padding-top: 2px; font-size: 17px; }
   .briefing-score-table { font-size: 15px; }
+  .briefing-score-table thead { font-size: 14px; }
   .briefing-score-table th:first-child { width: 25%; }
   .briefing-score-table td:nth-child(2) { width: 23%; }
   .briefing-score-table tbody th, .briefing-score-table td { padding: 15px 10px 15px 0; }
-  .briefing-score-table small, .briefing-affairs-note { font-size: 13px; }
+  .briefing-score-table small { font-size: 14px; }
   .briefing-actions { padding-top: 22px; }
   .briefing-actions .button { width: 100%; }
 }
