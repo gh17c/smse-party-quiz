@@ -1,0 +1,14 @@
+/* Shared reading palette for the practice and test launch pages. */
+body:is([data-page="practice"], [data-page="test"]) {
+  --canvas: #f7f5f0;
+  --ink: #33312e;
+  --muted: #716c65;
+  --line: #e5e0d7;
+  --red-900: #70332e;
+  --red-800: #804039;
+  --red-700: #934a40;
+  background: var(--canvas);
+  color: var(--ink);
+}
+body:is([data-page="practice"], [data-page="test"]) ::selection { color: #402d26; background: #e8d9c9; }
+body:is([data-page="practice"], [data-page="test"]) :focus-visible { outline: 2px solid #934a40; outline-offset: 4px; }

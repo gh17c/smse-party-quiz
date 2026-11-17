@@ -8,6 +8,8 @@
     <title>综合测试 · 党建学习平台</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/study.css">
+    <link rel="stylesheet" href="assets/test.css">
   </head>
   <body data-page="test" class="auth-pending">
     <a class="skip-link" href="#main">跳到主要内容</a>
@@ -31,7 +33,6 @@
       <section class="test-briefing" aria-labelledby="briefing-title">
         <header class="briefing-heading">
           <h2 id="briefing-title">考试说明</h2>
-          <span>综合卷</span>
         </header>
         <dl class="briefing-facts">
           <div><dt>考试时长</dt><dd>60 分钟</dd></div>
@@ -39,14 +40,17 @@
           <div><dt>试卷满分</dt><dd>100 分</dd></div>
           <div><dt>组卷方式</dt><dd>系统随机抽题</dd></div>
         </dl>
-        <div class="briefing-rules" role="group" aria-label="题型及计分规则">
-          <p>单选题 <strong>25 题，每题 2 分</strong></p>
-          <p>多选题 <strong>10 题，每题 3 分</strong>，少选得 1 分，错选不得分</p>
-          <p>判断题 <strong>20 题，每题 1 分</strong></p>
-          <p>时事政治题 <strong>整卷最高 20 分</strong>，不足时由其他专题题目补足</p>
-        </div>
+        <table class="briefing-score-table" aria-label="题型及计分规则">
+          <thead><tr><th scope="col">题型</th><th scope="col">题量</th><th scope="col">计分规则</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">单选题</th><td>25 题</td><td>每题 2 分</td></tr>
+            <tr><th scope="row">多选题</th><td>10 题</td><td>每题 3 分<small>全部选对得 3 分，少选得 1 分，错选不得分</small></td></tr>
+            <tr><th scope="row">判断题</th><td>20 题</td><td>每题 1 分</td></tr>
+          </tbody>
+        </table>
+        <p class="briefing-affairs-note">时事政治题整卷不超过 20 分，不足时由其他专题题目补足。</p>
         <div class="briefing-actions">
-          <button class="button button-red" type="button" id="start-test">开始综合测试 <span aria-hidden="true">→</span></button>
+          <button class="button button-red" type="button" id="start-test">开始综合测试</button>
           <p class="test-availability" id="test-availability" role="status" hidden></p>
         </div>
       </section>
