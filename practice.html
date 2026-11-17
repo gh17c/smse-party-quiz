@@ -8,6 +8,7 @@
     <title>专题练习 · 党建学习平台</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/practice.css">
   </head>
   <body data-page="practice" class="auth-pending">
     <a class="skip-link" href="#main">跳到主要内容</a>
@@ -47,12 +48,17 @@
             <p id="practice-save-status" class="practice-save-state" role="status" hidden><span id="practice-save-label"></span></p>
           </div>
           <div class="practice-overview" id="practice-overview" hidden>
-            <div class="practice-progress-heading"><span id="practice-progress-caption">练习进度</span><button class="text-button" id="practice-next-unanswered" type="button">继续未答</button></div>
-            <div class="practice-progress-track" id="practice-progress-track" role="progressbar" aria-label="本专题已提交题目" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span id="practice-progress-fill"></span></div>
             <details class="practice-question-map" id="practice-question-map">
-              <summary><span>答题卡</span><span class="practice-map-summary-end"><span id="practice-map-location"></span><svg class="practice-map-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+              <summary>
+                <span id="practice-progress-caption">练习进度</span>
+                <span class="practice-map-trigger">答题卡<svg class="practice-map-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+                <span class="practice-progress-track" id="practice-progress-track" role="progressbar" aria-label="本专题已提交题目" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span id="practice-progress-fill"></span></span>
+              </summary>
               <div class="practice-map-panel">
-                <div class="practice-map-legend"><span class="map-key-correct">答对</span><span class="map-key-incorrect">答错</span><span class="map-key-draft">待提交</span><span class="map-key-unanswered">未答</span></div>
+                <div class="practice-map-tools">
+                  <div class="practice-map-legend"><span class="map-key-correct">答对</span><span class="map-key-incorrect">答错</span><span class="map-key-draft">待提交</span><span class="map-key-unanswered">未答</span></div>
+                  <button class="text-button" id="practice-next-unanswered" type="button">继续未答</button>
+                </div>
                 <nav class="practice-map-grid" id="practice-map-grid" aria-label="按题号跳转"></nav>
                 <div class="practice-map-pagination"><button class="practice-map-page" id="practice-map-prev" type="button" aria-label="上一组题号">上一组</button><span id="practice-map-range" aria-live="polite"></span><button class="practice-map-page" id="practice-map-next" type="button" aria-label="下一组题号">下一组</button></div>
               </div>
@@ -62,7 +68,6 @@
             <div class="practice-welcome">
               <h3>选择专题，开始练习</h3>
               <p>每题提交后可查看解析，练习进度自动保存。</p>
-              <ol class="practice-start-steps"><li>选择专题</li><li>逐题作答</li><li>回看解析</li></ol>
               <button class="button button-red" id="practice-first-topic" type="button">从党章基础开始</button>
             </div>
           </div>

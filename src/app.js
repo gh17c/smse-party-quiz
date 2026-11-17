@@ -174,7 +174,7 @@ function renderPracticeOverview(requestedPage) {
   const count = session.questions.length;
   const answered = progress.answeredCount;
   const mapGrid = document.querySelector('#practice-map-grid');
-  const defaultPage = Number(mapGrid.dataset.page || Math.floor(session.currentIndex / 30));
+  const defaultPage = Math.floor(session.currentIndex / 30);
   const activePage = getPracticeQuestionPage(session, Number.isInteger(requestedPage) ? requestedPage : defaultPage);
   mapGrid.dataset.page = String(activePage.page);
   const bar = document.querySelector('#practice-progress-track');
@@ -184,7 +184,7 @@ function renderPracticeOverview(requestedPage) {
   bar.setAttribute('aria-valuetext', `已提交 ${answered} / ${count} 题`);
   fill.style.transform = `scaleX(${count ? answered / count : 0})`;
   document.querySelector('#practice-progress-caption').textContent = `已完成 ${answered} / ${count} 题`;
-  document.querySelector('#practice-map-location').textContent = `当前 ${session.currentIndex + 1} / ${count} 题`;
+  document.querySelector('#practice-question-map summary').setAttribute('aria-label', `答题卡，已完成 ${answered} / ${count} 题，当前第 ${session.currentIndex + 1} 题`);
   const unanswered = document.querySelector('#practice-next-unanswered');
   unanswered.textContent = progress.complete ? '查看本轮结果' : '继续未答';
   unanswered.disabled = progress.complete && session.view === 'summary';
@@ -212,7 +212,7 @@ function renderPracticeOverview(requestedPage) {
   document.querySelectorAll('.practice-topics .topic-row').forEach((link) => {
     if (link.dataset.topic === session.topic) {
       const description = link.querySelector('.topic-body small');
-      if (description) description.textContent = `${getTopicQuestions(questionBank, session.topic).length} 道题 · 进度 ${answered} / ${count}`;
+      if (description) description.textContent = `${getTopicQuestions(questionBank, session.topic).length} 题${answered ? ` · 已答 ${answered}` : ''}`;
     }
   });
 }
@@ -257,9 +257,8 @@ function renderQuestion() {
   }
   const meta = makeElement('div', 'question-meta');
   meta.append(
-    makeElement('span', 'question-count', `${String(session.currentIndex + 1).padStart(2, '0')} / ${String(session.questions.length).padStart(2, '0')}`),
+    makeElement('span', 'question-count', `第 ${session.currentIndex + 1} / ${session.questions.length} 题`),
     makeElement('span', 'question-type', questionTypeLabel(question.type)),
-    makeElement('span', 'practice-answered', `已答 ${progress.answeredCount} / ${session.questions.length} 题`),
   );
   panel.append(meta);
 
@@ -339,7 +338,7 @@ function renderQuestion() {
   previous.dataset.action = 'previous-question';
   previous.disabled = session.currentIndex === 0;
   const lastQuestion = session.currentIndex === session.questions.length - 1;
-  const next = makeElement('button', 'button button-red', !lastQuestion ? '下一题' : progress.complete ? '查看本轮结果' : '继续未答题');
+  const next = makeElement('button', 'button button-quiet', !lastQuestion ? '下一题' : progress.complete ? '查看本轮结果' : '继续未答题');
   next.type = 'button';
   next.dataset.action = 'next-question';
   const navigate = (direction, event) => {
@@ -375,7 +374,6 @@ function renderPracticeSummary() {
   const summary = makeElement('section', 'practice-summary');
   summary.dataset.practiceSummary = '';
   summary.append(
-    makeElement('p', 'section-kicker', session.mode === 'mistakes' ? 'MISTAKE REVIEW' : 'TOPIC PRACTICE'),
     makeElement('h3', '', '本轮完成'),
     makeElement('p', 'summary-score', `答对 ${correctCount} / ${session.questions.length} 题`),
     makeElement('p', 'summary-topic', `${session.topic} · ${session.mode === 'mistakes' ? '错题重做' : '专题练习'}`),
@@ -499,7 +497,7 @@ document.querySelectorAll('.topic-row[data-topic]').forEach((link) => {
   const savedSession = page === 'practice' ? practiceStore.load(link.dataset.topic, questionBank) : null;
   const savedCount = savedSession ? getPracticeProgress(savedSession).answeredCount : 0;
   if (countLabel) countLabel.textContent = `${count} 题`;
-  if (description && page === 'practice') description.textContent = `${count} 道题${savedCount ? ` · 已答 ${savedCount}` : ''}`;
+  if (description && page === 'practice') description.textContent = `${count} 题${savedCount ? ` · 已答 ${savedCount}` : ''}`;
 });
 
 if (page === 'practice') {
@@ -532,7 +530,7 @@ if (page === 'practice') {
   });
 
   document.querySelector('#practice-map-prev').addEventListener('click', () => {
-    const currentPage = Math.floor(session.currentIndex / 30);
+    const currentPage = Number(document.querySelector('#practice-map-grid').dataset.page || 0);
     const map = document.querySelector('#practice-question-map');
     map.open = true;
     renderPracticeOverview(currentPage - 1);
@@ -553,6 +551,7 @@ if (page === 'practice') {
       return;
     }
     goToPracticeQuestion(session, progress.firstUnanswered);
+    document.querySelector('#practice-question-map').open = false;
     savePracticeProgress();
     renderQuestion();
     renderPracticeOverview();
