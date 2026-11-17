@@ -3,6 +3,15 @@ import { AUTH_CONFIG, isAuthConfigured } from './auth-config.js';
 const SESSION_KEY = 'smse-party-quiz-auth-session';
 const HISTORY_TABLE = 'quiz_history';
 const HISTORY_COLUMNS = 'id,mode,topic,score,total,question_count,correct_count,completed_at';
+const STUDENT_EMAIL_DOMAIN = 'students.smse-party-quiz.invalid';
+
+export function studentLoginEmail(studentId) {
+  const normalizedId = String(studentId || '').trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9._-]{0,31}$/.test(normalizedId)) {
+    throw new Error('请输入有效的学号。');
+  }
+  return `${normalizedId}@${STUDENT_EMAIL_DOMAIN}`;
+}
 
 function readStoredSession() {
   try {
@@ -19,24 +28,6 @@ function saveStoredSession(session) {
   } catch {
     throw new Error('浏览器无法保存登录状态，请检查存储空间或隐私设置。');
   }
-}
-
-export function acceptAuthCallback() {
-  const params = new URLSearchParams(window.location.hash.slice(1));
-  const accessToken = params.get('access_token');
-  const refreshToken = params.get('refresh_token');
-  const type = params.get('type');
-  if (!accessToken || !refreshToken || !['invite', 'recovery'].includes(type)) return null;
-  const expiresIn = Number(params.get('expires_in')) || 3600;
-  saveStoredSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    expires_in: expiresIn,
-    expires_at: Math.floor(Date.now() / 1000) + expiresIn,
-    token_type: params.get('token_type') || 'bearer',
-  });
-  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-  return { type };
 }
 
 function authUrl(path) {
@@ -109,26 +100,15 @@ export async function getActiveSession() {
   }
 }
 
-export async function signIn(email, password) {
+export async function signIn(studentId, password) {
   if (!isAuthConfigured) throw new Error('登录服务尚未配置，请联系网站管理员。');
-  if (!email.trim() || !password) throw new Error('请输入邮箱和密码。');
+  if (!password) throw new Error('请输入密码。');
   const session = await request('/auth/v1/token?grant_type=password', {
     method: 'POST',
-    body: { email: email.trim(), password },
+    body: { email: studentLoginEmail(studentId), password },
   });
   saveStoredSession(session);
   return session;
-}
-
-export async function setAccountPassword(password) {
-  if (!isAuthConfigured) throw new Error('登录服务尚未配置，请联系网站管理员。');
-  const session = readStoredSession();
-  if (!session?.access_token) throw new Error('邀请链接已失效，请联系网站管理员重新发送。');
-  await request('/auth/v1/user', {
-    method: 'PUT',
-    token: session.access_token,
-    body: { password },
-  });
 }
 
 export async function signOut() {
@@ -235,7 +215,9 @@ function addAccountControl(user) {
   const control = document.createElement('div');
   control.className = 'account-control';
   const email = document.createElement('span');
-  email.textContent = user.email || '已登录';
+  const studentId = user.email?.split('@')[0] || '';
+  const name = user.user_metadata?.full_name || user.user_metadata?.name;
+  email.textContent = name ? `${name} · ${studentId}` : studentId || '已登录';
   email.title = user.email || '';
   const button = document.createElement('button');
   button.className = 'account-signout';
@@ -255,7 +237,7 @@ function addAccountControl(user) {
 
 export function authErrorMessage(error) {
   const message = String(error?.message || '登录失败，请稍后重试。');
-  if (error?.status === 400 || error?.status === 401) return '邮箱或密码不正确，或账号尚未由管理员启用。';
+  if (error?.status === 400 || error?.status === 401) return '学号或密码不正确，请确认账号已由管理员创建。';
   if (error?.status === 429) return '尝试次数过多，请稍后再试。';
   if (error?.status === 0 || /failed to fetch|network/i.test(message)) return '网络连接失败，请检查网络后重试。';
   return message;

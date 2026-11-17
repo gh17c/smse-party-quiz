@@ -22,19 +22,15 @@
     <main id="main" class="login-main">
       <section class="login-panel" aria-labelledby="login-title">
         <h1 id="login-title">账号登录</h1>
-        <p class="login-intro">使用管理员分配的账号进入学习平台。</p>
+        <p class="login-intro">输入管理员分配给你的学号和密码。</p>
         <form id="login-form" novalidate>
-          <div class="login-field" id="login-email-field">
-            <label for="login-email">邮箱</label>
-            <input id="login-email" name="email" type="email" autocomplete="username" inputmode="email" required>
+          <div class="login-field">
+            <label for="login-student-id">学号</label>
+            <input id="login-student-id" name="student-id" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" required>
           </div>
           <div class="login-field">
             <label for="login-password">密码</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required>
-          </div>
-          <div class="login-field" id="login-confirm-field" hidden>
-            <label for="login-confirm">确认密码</label>
-            <input id="login-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8">
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required>
           </div>
           <p class="login-status" id="login-status" role="status" aria-live="polite"></p>
           <button class="button button-red login-submit" id="login-submit" type="submit">登录</button>
